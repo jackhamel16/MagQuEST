@@ -4,8 +4,12 @@
 #include <Eigen/Dense>
 #include <fstream>
 #include <iostream>
-
+#include <iterator>
 #include "math_utils.h"
+
+class Pulse;
+
+typedef std::vector<Pulse> PulseVector;
 
 class Pulse {
  public:
@@ -23,6 +27,6 @@ class Pulse {
   Eigen::Vector3d wavevector, field_orientation;
 };
 
-Pulse read_pulse_config(const std::string &);
+PulseVector import_pulses(const std::string &);
 
 #endif

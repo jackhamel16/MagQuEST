@@ -35,11 +35,11 @@ int main(int argc, char *argv[])
 
 
     // Set up Interactions
-    auto pulse1 = make_shared<Pulse>(read_pulse_config(config.pulse_path));
+    auto pulse1 = make_shared<PulseVector>(import_pulses(config.pulse_path));
     auto dyadic = make_shared<Propagation::FixedFramePropagator>(config.c0);
 
     std::vector<std::shared_ptr<Interaction>> interactions{
-        make_shared<PulseInteraction>(qds, pulse1, config.hbar, config.dt),
+        make_shared<PulseInteraction>(qds, pulses, config.hbar, config.dt),
         make_shared<HistoryInteraction>(qds, history, dyadic,
                                         config.interpolation_order, config.dt,
                                         config.c0),

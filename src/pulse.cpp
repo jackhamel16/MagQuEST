@@ -37,13 +37,11 @@ std::istream &operator>>(std::istream &is, Pulse &p)
   return is;
 }
 
-Pulse read_pulse_config(const std::string &fname)
+PulseVector import_pulses(const std::string &fname)
 {
   std::ifstream ifs(fname);
   if(!ifs) throw std::runtime_error("Could not open " + fname);
 
-  Pulse p;
-  ifs >> p;
-
-  return p;
+  std::istream_iterator<Pulse> in_iter(ifs), eof;
+  return PulseVector(in_iter, eof);
 }
