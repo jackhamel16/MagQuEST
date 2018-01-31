@@ -20,6 +20,7 @@ HistoryInteraction::HistoryInteraction(
       c0(c0)
 {
   build_coefficient_table();
+  chi = 1;
 }
 
 void HistoryInteraction::build_coefficient_table()
@@ -37,7 +38,11 @@ void HistoryInteraction::build_coefficient_table()
     floor_delays[pair_idx] = delay.first;
     lagrange.calculate_weights(delay.second, dt);
 
-    std::vector<Eigen::Matrix3d> interp_dyads(dyadic->coefficients(dr, lagrange));
+    if(delay.first == 0) { rhs_pairs.push_back(pair_idx);
+      std::cout << pair_idx << std::endl;
+    }
+    std::vector<Eigen::Matrix3d> interp_dyads(
+        dyadic->coefficients(dr, lagrange));
 
     for(int i = 0; i <= interp_order; ++i) {
       coefficients[pair_idx][i] = interp_dyads[i];
@@ -56,17 +61,22 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
     const int s = time_idx - floor_delays[pair_idx];
 
     Vec3d dr(separation((*dots)[src], (*dots)[obs]));
+   
+    if(time_idx == 1) { 
+      auto test = std::find(rhs_pairs.begin(), rhs_pairs.end(), pair_idx);
+      if(*test == pair_idx) std::cout << "dt < 1 : " << pair_idx << std::endl;
+    }
 
     for(int i = 0; i <= interp_order; ++i) {
-      if(s - i < history->array.index_bases()[1]) continue;
-
-      results[src] +=
-          coefficients[pair_idx][i] * history->array[obs][s - i][0];
-      results[obs] +=
-          coefficients[pair_idx][i] * history->array[src][s - i][0];
+      if(s - i < 0) continue;
+      if(s - i >= 0) {
+        results[src] +=
+            coefficients[pair_idx][i] * history->array[obs][s - i][0];
+        results[obs] +=
+            coefficients[pair_idx][i] * history->array[src][s - i][0];
+      }
     }
   }
-
   return results;
 }
 
