@@ -10,6 +10,7 @@ class SelfInteraction : public Interaction {
   SelfInteraction(const std::shared_ptr<const DotVector> &,
                   const std::shared_ptr<const Integrator::History<soltype>> &);
   virtual const ResultArray &evaluate(const int);
+  double chi;
 
  private:
   std::shared_ptr<const Integrator::History<soltype>> history;

@@ -31,12 +31,10 @@ int main(int argc, char *argv[])
     auto history = std::make_shared<Integrator::History<soltype>>(
         config.num_particles, 22, config.num_timesteps);
     history->fill(soltype(0, 0, 0));
-    history->initialize_past(qds);
-
-
+    
     // Set up Interactions
     auto pulses = make_shared<PulseVector>(import_pulses(config.pulse_path));
-    auto dyadic = make_shared<Propagation::FixedFramePropagator>(config.c0);
+    auto dyadic = make_shared<Propagation::FixedFramePropagator>(config.c0, config.e0);
 
     std::vector<std::shared_ptr<Interaction>> interactions{
         make_shared<PulseInteraction>(qds, pulses, config.hbar, config.dt),

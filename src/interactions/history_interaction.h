@@ -21,13 +21,14 @@ class HistoryInteraction : public Interaction {
       const double);
 
   virtual const ResultArray &evaluate(const int);
+  const ResultArray &evaluate_now(const int);
 
  private:
   std::shared_ptr<const Integrator::History<soltype>> history;
   std::shared_ptr<Propagation::FixedFramePropagator> dyadic;
   int interp_order, num_interactions;
   std::vector<int> floor_delays;
-  std::vector<int> rhs_pairs;
+  std::vector<int> now_pairs;
   boost::multi_array<Eigen::Matrix3d, 2> coefficients;
   const double dt;
   const double c0;
