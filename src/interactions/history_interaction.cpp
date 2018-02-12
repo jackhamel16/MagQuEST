@@ -83,21 +83,17 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
 }
 
 const Interaction::ResultArray &HistoryInteraction::evaluate_now(
-    const int time_idx, Eigen::Matrix<soltype, Eigen::Dynamic, 1> &H_vec)
+    Interaction::ResultArray &H_vec)
 {
   for(int i = 0; i < static_cast<int>(results_now.size()); ++i)
-    results_now[i] = Eigen::Vector3d(0, 0, 0);
+    results_now[i] = -chi / 3 * H_vec[i]; // self-interaction
 
   for(int i = 0; i < static_cast<int>(now_pairs.size()); ++i) {
     int src, obs;
     std::tie(src, obs) = idx2coord(now_pairs[i]);
 
-    // if(time_idx == 10) std::cout << coefficients[now_pairs[i]][0] <<
-    // std::endl;
     results_now[src] += coefficients[now_pairs[i]][0] * H_vec[obs];
     results_now[obs] += coefficients[now_pairs[i]][0] * H_vec[src];
-    // if(time_idx == 10) std::cout << results_now[src].transpose() <<
-    // std::endl;
   }
   return results_now;
 }

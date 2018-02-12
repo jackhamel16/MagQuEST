@@ -21,8 +21,7 @@ class HistoryInteraction : public Interaction {
       const double);
 
   virtual const ResultArray &evaluate(const int);
-  virtual const ResultArray &evaluate_now(const int,
-                                  Eigen::Matrix<soltype, Eigen::Dynamic, 1> &);
+  virtual const ResultArray &evaluate_now(ResultArray &);
 
  private:
   std::shared_ptr<const Integrator::History<soltype>> history;

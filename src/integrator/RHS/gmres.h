@@ -67,14 +67,11 @@ namespace GMRES {
     return (x > 0 ? x : -x);
   }
 
-  template <class Operator,
-            class Vector,
+  template <class Vector,
             class Matrix,
             class Real,
-            class InteractionPtr,
-            class >
-  int GMRES(
-            InteractionPtr interaction,
+            class InteractionPtr>
+  int GMRES(InteractionPtr interaction,
             Vector &x,
             const Vector &b,
             Matrix &H,
@@ -88,7 +85,7 @@ namespace GMRES {
 
     Real normb = b.norm();
     // MatVec
-    Vector r = b - A * x;
+    Vector r = b - interaction->evaluate_now(&x);
     Real beta = r.norm();
 
     if(normb == 0.0) normb = 1;
@@ -109,7 +106,7 @@ namespace GMRES {
       // std::cout << v[0] << std::endl;
       for(i = 0; i < m && j <= max_iter; i++, j++) {
         // MatVec
-        w = A * v[i];
+        w = interaction->evaluate_now(v[i]);
 
         for(k = 0; k <= i; k++) {
           H(k, i) = w.dot(v[k]);
@@ -136,7 +133,7 @@ namespace GMRES {
       }
       Update(x, m - 1, H, s, v);
       // MatVec
-      r = b - A * x;
+      r = b - interaction->evaluate_now(x);
       beta = r.norm();
       if((resid = beta / normb) < tol) {
         tol = resid;
