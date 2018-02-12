@@ -74,7 +74,7 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
 
       auto pair_found = std::find(now_pairs.begin(), now_pairs.end(), pair_idx);
       if(*pair_found == pair_idx && i == 0) continue;
-      
+
       results[src] += coefficients[pair_idx][i] * history->array[obs][s - i][0];
       results[obs] += coefficients[pair_idx][i] * history->array[src][s - i][0];
     }
@@ -82,21 +82,25 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
   return results;
 }
 
-const Interaction::ResultArray &HistoryInteraction::evaluate_now(const int time_idx)
+const Interaction::ResultArray &HistoryInteraction::evaluate_now(
+    const int time_idx, Eigen::Matrix<soltype, Eigen::Dynamic, 1> &H_vec)
 {
   for(int i = 0; i < static_cast<int>(results_now.size()); ++i)
     results_now[i] = Eigen::Vector3d(0, 0, 0);
 
-  for(int i = 0; i < static_cast<int>(now_pairs.size()); ++i) { 
+  for(int i = 0; i < static_cast<int>(now_pairs.size()); ++i) {
     int src, obs;
     std::tie(src, obs) = idx2coord(now_pairs[i]);
-    if(time_idx == 100) std::cout << now_pairs[i] << " " << obs << " " << src << std::endl;
-    results_now[src] += coefficients[now_pairs[i]][0] * history->array[obs][time_idx][0];
-    results_now[obs] += coefficients[now_pairs[i]][0] * history->array[src][time_idx][0];
+
+    // if(time_idx == 10) std::cout << coefficients[now_pairs[i]][0] <<
+    // std::endl;
+    results_now[src] += coefficients[now_pairs[i]][0] * H_vec[obs];
+    results_now[obs] += coefficients[now_pairs[i]][0] * H_vec[src];
+    // if(time_idx == 10) std::cout << results_now[src].transpose() <<
+    // std::endl;
   }
   return results_now;
 }
-
 
 int HistoryInteraction::coord2idx(int row, int col)
 {

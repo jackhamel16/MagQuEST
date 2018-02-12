@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     // Set up History
     auto history = std::make_shared<Integrator::History<soltype>>(
         config.num_particles, 22, config.num_timesteps);
-    history->fill(soltype(0, 0, 0));
+    history->fill(soltype(1,2,3));
     
     // Set up Interactions
     auto pulses = make_shared<PulseVector>(import_pulses(config.pulse_path));
