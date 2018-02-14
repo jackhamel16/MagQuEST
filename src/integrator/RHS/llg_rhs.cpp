@@ -1,8 +1,8 @@
 #include "llg_rhs.h"
-#include "gmres.h"
 #include <fstream>
 #include <ostream>
 #include <string>
+#include "gmres.h"
 
 Integrator::LLG_RHS::LLG_RHS(
     const double dt,
@@ -22,27 +22,31 @@ void Integrator::LLG_RHS::evaluate(const int step) const
   auto history_interactions_past = interactions[1]->evaluate(step);
   auto self_interactions = interactions[2]->evaluate(step);
 
-  std::vector<Eigen::Vector3d> H_vec(num_solutions);
-  for(int sol = 0; sol < num_solutions; ++sol) {
-    H_vec[sol] = Eigen::Vector3d(0, 0, 0);
-  }
+  Eigen::Matrix<double, Eigen::Dynamic, 1> H_vec(num_solutions);  
+  for(int sol = 0; sol < num_solutions; ++sol) H_vec[sol] = 0; 
 
-  const int m = 20;
-  const int max_iter = 200;
-  const double tol = 1e-7;
-  Eigen::Matrix<double, m+1, m+1> H;
+  int m = 20;
+  int max_iter = 200;
+  double tol = 1e-7;
+  Eigen::Matrix<double, 21, 21> H;  // m+1 x m+1
 
-  std::vector<Eigen::Vector3d> interactions_past(num_solutions); 
+  std::vector<Eigen::Vector3d> interactions_past(num_solutions);
   for(int i = 0; i < num_solutions; ++i) {
     interactions_past[i] = pulse_interactions[i] + history_interactions_past[i];
   }
 
-  auto history_interactions_now = GMRES::GMRES(interactions[1], H_vec, 
-      interactions_past, H, m, max_iter, tol);
-      
-  //for(int sol = 0; sol < num_solutions; ++sol) {
-    //history->array[sol][step][0] = (pulse_interactions[sol] +
-                                          //history_interactions_past[sol]);
+  Eigen::Matrix<double, Eigen::Dynamic, 1> interactions_past_vec =
+      Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
+          interactions_past[0].data(), num_solutions);
+
+  if(step == 100) std::cout << interactions_past_vec.size() << std::endl;
+
+  auto history_interactions_now = GMRES::GMRES(
+      interactions[1], &H_vec, &interactions_past_vec, &H, m, max_iter, tol);
+
+  // for(int sol = 0; sol < num_solutions; ++sol) {
+  // history->array[sol][step][0] = (pulse_interactions[sol] +
+  // history_interactions_past[sol]);
   //}
   // if(step == 10) {
   // std::cout << "step: " << step << "  "
