@@ -82,20 +82,31 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
   return results;
 }
 
-const Interaction::ResultArray &HistoryInteraction::evaluate_now(
-    Interaction::ResultArray &H_vec)
+const Eigen::Matrix<double, Eigen::Dynamic, 1> &HistoryInteraction::evaluate_now(
+    Eigen::Matrix<double, Eigen::Dynamic, 1> &H_vec)
 {
   for(int i = 0; i < static_cast<int>(results_now.size()); ++i)
-    results_now[i] = -chi / 3 * H_vec[i]; // self-interaction
+    results_now[i] = -chi / 3 * H_vec[i];  // self-interaction
 
   for(int i = 0; i < static_cast<int>(now_pairs.size()); ++i) {
     int src, obs;
     std::tie(src, obs) = idx2coord(now_pairs[i]);
 
-    results_now[src] += coefficients[now_pairs[i]][0] * H_vec[obs];
-    results_now[obs] += coefficients[now_pairs[i]][0] * H_vec[src];
+    Eigen::Vector3d obs_vec = Eigen::Map<Eigen::Vector3d>(&H_vec[3 * obs]);
+    Eigen::Vector3d src_vec = Eigen::Map<Eigen::Vector3d>(&H_vec[3 * src]);
+
+    Eigen::Vector3d src_field = coefficients[now_pairs[i]][0] * obs_vec;
+    Eigen::Vector3d obs_field = coefficients[now_pairs[i]][0] * src_vec;
+
+    results_now[3 * src] = src_field[0];
+    results_now[3 * src + 1] = src_field[1];
+    results_now[3 * src + 2] = src_field[2];
+    results_now[3 * obs] = obs_field[0];
+    results_now[3 * obs + 1] = obs_field[1];
+    results_now[3 * obs + 2] = obs_field[2];
   }
-  return results_now;
+  return results_now
+
 }
 
 int HistoryInteraction::coord2idx(int row, int col)

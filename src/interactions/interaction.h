@@ -11,14 +11,19 @@ class Interaction {
   typedef std::vector<Eigen::Vector3d> ResultArray;
 
   Interaction(const std::shared_ptr<const DotVector> &dots)
-      : dots(dots), results(dots->size()), results_now(dots->size()){};
+      : dots(dots), results(dots->size()), results_now(3 * (dots->size())){};
   const Eigen::Vector3d &operator[](const int i) const { return results[i]; }
   virtual const ResultArray &evaluate(const int) = 0;
-  virtual const ResultArray &evaluate_now(ResultArray &) { return results_now; }
+  virtual const Eigen::Matrix<double, Eigen::Dynamic, 1> &evaluate_now(
+      Eigen::Matrix<double, Eigen::Dynamic, 1> &)
+  {
+    return results_now;
+  }
+
  protected:
   std::shared_ptr<const DotVector> dots;
   ResultArray results;
-  ResultArray results_now;
+  Eigen::Matrix<double, Eigen::Dynamic, 1> results_now;
 };
 
 #endif

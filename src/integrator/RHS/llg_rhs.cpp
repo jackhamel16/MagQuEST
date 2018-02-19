@@ -22,8 +22,8 @@ void Integrator::LLG_RHS::evaluate(const int step) const
   auto history_interactions_past = interactions[1]->evaluate(step);
   auto self_interactions = interactions[2]->evaluate(step);
 
-  Eigen::Matrix<double, Eigen::Dynamic, 1> H_vec(num_solutions);  
-  for(int sol = 0; sol < num_solutions; ++sol) H_vec[sol] = 0; 
+  Eigen::Matrix<double, Eigen::Dynamic, 1> H_vec(3 * num_solutions);
+  for(int sol = 0; sol < num_solutions; ++sol) H_vec[sol] = 0;
 
   int m = 20;
   int max_iter = 200;
@@ -37,12 +37,12 @@ void Integrator::LLG_RHS::evaluate(const int step) const
 
   Eigen::Matrix<double, Eigen::Dynamic, 1> interactions_past_vec =
       Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
-          interactions_past[0].data(), num_solutions);
+          interactions_past[0].data(), 3 * num_solutions);
 
   if(step == 100) std::cout << interactions_past_vec.size() << std::endl;
 
   auto history_interactions_now = GMRES::GMRES(
-      interactions[1], &H_vec, &interactions_past_vec, &H, m, max_iter, tol);
+      interactions[1], H_vec, interactions_past_vec, H, m, max_iter, tol);
 
   // for(int sol = 0; sol < num_solutions; ++sol) {
   // history->array[sol][step][0] = (pulse_interactions[sol] +
