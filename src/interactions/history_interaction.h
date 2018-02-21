@@ -22,7 +22,7 @@ class HistoryInteraction : public Interaction {
 
   virtual const ResultArray &evaluate(const int);
   virtual const Eigen::Matrix<double, Eigen::Dynamic, 1> &evaluate_now(
-      Eigen::Matrix<double, Eigen::dynamic, 1> &);
+      Eigen::Matrix<double, Eigen::Dynamic, 1> &);
 
  private:
   std::shared_ptr<const Integrator::History<soltype>> history;

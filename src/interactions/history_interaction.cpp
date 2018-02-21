@@ -98,6 +98,8 @@ const Eigen::Matrix<double, Eigen::Dynamic, 1> &HistoryInteraction::evaluate_now
     Eigen::Vector3d src_field = coefficients[now_pairs[i]][0] * obs_vec;
     Eigen::Vector3d obs_field = coefficients[now_pairs[i]][0] * src_vec;
 
+    std::cout << src_field.transpose() <<std::endl;
+
     results_now[3 * src] = src_field[0];
     results_now[3 * src + 1] = src_field[1];
     results_now[3 * src + 2] = src_field[2];
@@ -105,7 +107,7 @@ const Eigen::Matrix<double, Eigen::Dynamic, 1> &HistoryInteraction::evaluate_now
     results_now[3 * obs + 1] = obs_field[1];
     results_now[3 * obs + 2] = obs_field[2];
   }
-  return results_now
+  return results_now;
 
 }
 
