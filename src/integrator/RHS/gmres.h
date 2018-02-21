@@ -85,7 +85,7 @@ namespace GMRES {
 
     Real normb = b.norm();
     // MatVec
-    Vector r = b - interaction->evaluate_now(&x);
+    Vector r = b - interaction->evaluate_now(x);
     Real beta = r.norm();
 
     if(normb == 0.0) normb = 1;
