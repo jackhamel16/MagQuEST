@@ -40,8 +40,7 @@ int main(int argc, char *argv[])
         make_shared<PulseInteraction>(qds, pulses, config.hbar, config.dt),
         make_shared<HistoryInteraction>(qds, history, dyadic,
                                         config.interpolation_order, config.dt,
-                                        config.c0),
-        make_shared<SelfInteraction>(qds, history)};
+                                        config.c0)};
 
     // Set up RHS functions
     auto rhs_funcs = rhs_functions(*qds);
