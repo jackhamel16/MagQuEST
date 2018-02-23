@@ -18,9 +18,17 @@ Integrator::LLG_RHS::LLG_RHS(
 
 void Integrator::LLG_RHS::evaluate(const int step) const
 {
+  //evaluate_now testing grounds
+  //Eigen::VectorXd test_vec(6);
+  //test_vec << 1,1,1,1,1,1;
+  //auto test_results = interactions[1]->evaluate_now(test_vec);
+ 
+  //std::cout << "step: " << step << std::endl;
+  //std::cout << test_results << std::endl; 
+  
   auto pulse_interactions = interactions[0]->evaluate(step);
   auto history_interactions_past = interactions[1]->evaluate(step);
-  //auto self_interactions = interactions[2]->evaluate(step);
+  // auto self_interactions = interactions[2]->evaluate(step);
 
   Eigen::Matrix<double, Eigen::Dynamic, 1> H_vec(3 * num_solutions);
   for(int sol = 0; sol < num_solutions; ++sol) H_vec[sol] = 0;
@@ -35,16 +43,16 @@ void Integrator::LLG_RHS::evaluate(const int step) const
     interactions_past[i] = pulse_interactions[i] + history_interactions_past[i];
   }
 
+  // Mapping std:vector<Eigen::Vector3d> to an Eigen::VectorXd for GMRES
   Eigen::Matrix<double, Eigen::Dynamic, 1> interactions_past_vec =
       Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
           interactions_past[0].data(), 3 * num_solutions);
 
-  if(step == 10) std::cout << H_vec[2] << std::endl;
-
   auto history_interactions_now = GMRES::GMRES(
-      interactions[1], H_vec, interactions_past_vec, H, m, max_iter, tol);
+  interactions[1], H_vec, interactions_past_vec, H, m, max_iter, tol);
 
-  if(step == 10) std::cout << H_vec[2] << std::endl; 
+  std::cout << H_vec[0] << " " << H_vec[1] << " " << H_vec[2] << std::endl;
+
   // for(int sol = 0; sol < num_solutions; ++sol) {
   // history->array[sol][step][0] = (pulse_interactions[sol] +
   // history_interactions_past[sol]);
