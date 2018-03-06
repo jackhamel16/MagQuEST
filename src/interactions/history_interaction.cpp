@@ -64,17 +64,14 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
 
     Vec3d dr(separation((*dots)[src], (*dots)[obs]));
 
-    // if(time_idx == 1) {
-    // auto test = std::find(rhs_pairs.begin(), rhs_pairs.end(), pair_idx);
-    // if(*test == pair_idx) std::cout << "dt < 1 : " << pair_idx << std::endl;
-    //}
-
     for(int i = 0; i <= interp_order; ++i) {
       if(s - i < 0) continue;
 
-      auto pair_found = std::find(now_pairs.begin(), now_pairs.end(), pair_idx);
-      if(*pair_found == pair_idx && i == 0) continue;
-
+      if(now_pairs.size() > 0) {
+        auto pair_found =
+            std::find(now_pairs.begin(), now_pairs.end(), pair_idx);
+        if(*pair_found == pair_idx && i == 0) continue;
+      }
       results[src] += coefficients[pair_idx][i] * history->array[obs][s - i][0];
       results[obs] += coefficients[pair_idx][i] * history->array[src][s - i][0];
     }
@@ -82,8 +79,9 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
   return results;
 }
 
-const Eigen::Matrix<double, Eigen::Dynamic, 1> &HistoryInteraction::evaluate_now(
-    Eigen::Matrix<double, Eigen::Dynamic, 1> &H_vec)
+const Eigen::Matrix<double, Eigen::Dynamic, 1>
+    &HistoryInteraction::evaluate_now(
+        Eigen::Matrix<double, Eigen::Dynamic, 1> &H_vec)
 {
   for(int i = 0; i < static_cast<int>(results_now.size()); ++i)
     results_now[i] = -chi / 3 * H_vec[i];  // self-interaction
@@ -106,7 +104,6 @@ const Eigen::Matrix<double, Eigen::Dynamic, 1> &HistoryInteraction::evaluate_now
     results_now[3 * obs + 2] += obs_field[2];
   }
   return results_now;
-
 }
 
 int HistoryInteraction::coord2idx(int row, int col)
