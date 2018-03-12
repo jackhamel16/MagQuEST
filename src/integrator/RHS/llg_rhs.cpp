@@ -48,5 +48,6 @@ void Integrator::LLG_RHS::evaluate(const int step) const
         Eigen::Vector3d(H_vec[3 * sol], H_vec[3 * sol + 1], H_vec[3 * sol + 2]);
     if(step==200) std::cout << sol_vector.transpose() << std::endl;
     history->array[sol][step][0] = sol_vector;
+    history->array[sol][step][1] = pulse_interactions[sol];
   }
 }
