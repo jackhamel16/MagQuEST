@@ -34,14 +34,13 @@ int main(int argc, char *argv[])
 
     // Set up Interactions
     auto pulses = make_shared<PulseVector>(import_pulses(config.pulse_path));
-    for(int p = 0; p < pulses->size(); ++p) {
+    for(int p = 0; p < static_cast<int>(pulses->size()); ++p) {
       // computes sigma and td of the pulse
       (*pulses)[p].compute_parameters(config.c0);
     }
     auto dyadic =
         make_shared<Propagation::FixedFramePropagator>(config.c0, config.e0);
     const double dt = (*pulses)[0].compute_dt();
-    (*pulses)[0].display();
 
     std::vector<std::shared_ptr<Interaction>> interactions{
         make_shared<PulseInteraction>(qds, pulses, config.hbar, dt),

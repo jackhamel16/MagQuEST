@@ -25,7 +25,7 @@ void Integrator::LLG_RHS::evaluate(const int step) const
   for(int sol = 0; sol < 3 * num_solutions; ++sol) H_vec[sol] = 0;
 
   int m = 50;
-  int max_iter = 500;
+  int max_iter = 200;
   double tol = 1e-9;
   Eigen::Matrix<double, 51, 51> H;  // m+1 x m+1
 
@@ -33,7 +33,7 @@ void Integrator::LLG_RHS::evaluate(const int step) const
   for(int i = 0; i < num_solutions; ++i) {
     interactions_past[i] = pulse_interactions[i] + history_interactions_past[i];
   }
-
+  
   // Mapping std:vector<Eigen::Vector3d> to an Eigen::VectorXd for GMRES
   Eigen::Matrix<double, Eigen::Dynamic, 1> interactions_past_vec =
       Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
