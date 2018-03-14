@@ -15,6 +15,7 @@ HistoryInteraction::HistoryInteraction(
       interp_order(interp_order),
       num_interactions(dots->size() * (dots->size() - 1) / 2),
       floor_delays(num_interactions),
+      now_interactions(num_interactions),
       coefficients(boost::extents[num_interactions][interp_order + 1]),
       dt(dt),
       c0(c0)
@@ -40,7 +41,9 @@ void HistoryInteraction::build_coefficient_table()
 
     if(delay.first == 0) {
       now_pairs.push_back(pair_idx);
-      std::cout << pair_idx << std::endl;
+      now_interactions[pair_idx] = true; // Indicates pair depends on field now
+    } else {
+      now_interactions[pair_idx] = false;
     }
 
     std::vector<Eigen::Matrix3d> interp_dyads(
@@ -67,11 +70,8 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
     for(int i = 0; i <= interp_order; ++i) {
       if(s - i < 0) continue;
 
-      if(now_pairs.size() > 0) {
-        auto pair_found =
-            std::find(now_pairs.begin(), now_pairs.end(), pair_idx);
-        if(*pair_found == pair_idx && i == 0) continue;
-      }
+      if(now_interactions[pair_idx] == 1 && i == 0) continue;
+      
       results[src] += coefficients[pair_idx][i] * history->array[obs][s - i][0];
       results[obs] += coefficients[pair_idx][i] * history->array[src][s - i][0];
     }
@@ -82,7 +82,7 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
 const Eigen::Matrix<double, Eigen::Dynamic, 1>
     &HistoryInteraction::evaluate_now(
         Eigen::Matrix<double, Eigen::Dynamic, 1> &H_vec)
-{
+{ 
   for(int i = 0; i < static_cast<int>(results_now.size()); ++i){
     results_now[i] = (1 + chi / 3) * H_vec[i];  // Identity - self-interaction
     //std::cout << results_now[i] << std::endl; 

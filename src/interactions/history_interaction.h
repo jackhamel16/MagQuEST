@@ -30,6 +30,7 @@ class HistoryInteraction : public Interaction {
   int interp_order, num_interactions;
   std::vector<int> floor_delays;
   std::vector<int> now_pairs;
+  std::vector<bool> now_interactions;
   boost::multi_array<Eigen::Matrix3d, 2> coefficients;
   const double dt;
   const double c0;
