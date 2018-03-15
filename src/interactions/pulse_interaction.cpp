@@ -17,7 +17,7 @@ const Interaction::ResultArray &PulseInteraction::evaluate(const int time_idx)
     for(int n = 0; n < static_cast<int>(pulses->size()); ++n) {
       results[i] += (*pulses)[n]((*dots)[i].position(), time);
     }
-  if(time_idx==500) std::cout << "field: " << results[i].transpose() << std::endl;
+  //if(time_idx==500) std::cout << "field: " << results[i].transpose() << std::endl;
   }
   return results;
 }
