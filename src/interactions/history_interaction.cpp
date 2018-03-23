@@ -21,7 +21,7 @@ HistoryInteraction::HistoryInteraction(
       c0(c0)
 {
   build_coefficient_table();
-  chi = 1;
+  chi = 0;
 }
 
 void HistoryInteraction::build_coefficient_table()
@@ -72,8 +72,8 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
 
       if(now_interactions[pair_idx] == 1 && i == 0) continue;
       
-      results[src] += coefficients[pair_idx][i] * chi * history->array[obs][s - i][0];
-      results[obs] += coefficients[pair_idx][i] * chi * history->array[src][s - i][0];
+      results[src] += coefficients[pair_idx][i] * history->array[obs][s - i][0];
+      results[obs] += coefficients[pair_idx][i] * history->array[src][s - i][0];
     }
   }
   return results;
@@ -84,7 +84,7 @@ const Eigen::Matrix<double, Eigen::Dynamic, 1>
         Eigen::Matrix<double, Eigen::Dynamic, 1> &H_vec)
 { 
   for(int i = 0; i < static_cast<int>(results_now.size()); ++i){
-    results_now[i] =  H_vec[i];  // Identity - self-interaction
+    results_now[i] = (1 + chi / 3) * H_vec[i];  // Identity - self-interaction
     //std::cout << results_now[i] << std::endl; 
     }
   for(int i = 0; i < static_cast<int>(now_pairs.size()); ++i) {

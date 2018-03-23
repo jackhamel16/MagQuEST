@@ -19,36 +19,35 @@ Integrator::LLG_RHS::LLG_RHS(
 void Integrator::LLG_RHS::evaluate(const int step) const
 {
   auto pulse_interactions = interactions[0]->evaluate(step);
-  history->array[0][step][0] = pulse_interactions[0]; // Using pulse to set field at particle 1 ("0")
-  
   auto history_interactions_past = interactions[1]->evaluate(step);
-  //Eigen::Matrix<double, Eigen::Dynamic, 1> H_vec(3 * num_solutions);
-  //for(int sol = 0; sol < 3 * num_solutions; ++sol) H_vec[sol] = 0;
 
-  //int m = 50;
-  //int max_iter = 200;
-  //double tol = 1e-9;
-  //Eigen::Matrix<double, 51, 51> H;  // m+1 x m+1
+  Eigen::Matrix<double, Eigen::Dynamic, 1> H_vec(3 * num_solutions);
+  for(int sol = 0; sol < 3 * num_solutions; ++sol) H_vec[sol] = 0;
 
-  //std::vector<Eigen::Vector3d> interactions_past(num_solutions);
-  //for(int i = 0; i < num_solutions; ++i) {
-    //interactions_past[i] = pulse_interactions[i] + history_interactions_past[i];
-  //}
+  int m = 50;
+  int max_iter = 200;
+  double tol = 1e-9;
+  Eigen::Matrix<double, 51, 51> H;  // m+1 x m+1
+
+  std::vector<Eigen::Vector3d> interactions_past(num_solutions);
+  for(int i = 0; i < num_solutions; ++i) {
+    interactions_past[i] = pulse_interactions[i] + history_interactions_past[i];
+  }
   
   // Mapping std:vector<Eigen::Vector3d> to an Eigen::VectorXd for GMRES
-  //Eigen::Matrix<double, Eigen::Dynamic, 1> interactions_past_vec =
-      //Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
-          //interactions_past[0].data(), 3 * num_solutions);
+  Eigen::Matrix<double, Eigen::Dynamic, 1> interactions_past_vec =
+      Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
+          interactions_past[0].data(), 3 * num_solutions);
 
-  //auto GMRES_output = GMRES::GMRES(interactions[1], H_vec,
-                                   //interactions_past_vec, H, m, max_iter, tol);
+  auto GMRES_output = GMRES::GMRES(interactions[1], H_vec,
+                                   interactions_past_vec, H, m, max_iter, tol);
+  //if(step==200)for(int i=0; i <3*num_solutions; ++i) std::cout << H_vec[i] <<std::endl;
 
-  history->array[1][step][0] = history_interactions_past[1];
-  history->array[0][step][1] = pulse_interactions[0];
-  //for(int sol = 0; sol < num_solutions; ++sol) {
-    //Eigen::Vector3d sol_vector =
-        //Eigen::Vector3d(H_vec[3 * sol], H_vec[3 * sol + 1], H_vec[3 * sol + 2]);
-    //history->array[sol][step][0] = history_interactions_past[sol]V
-    //history->array[sol][step][1] = pulse_interactions[sol];
-  //}
+  for(int sol = 0; sol < num_solutions; ++sol) {
+    Eigen::Vector3d sol_vector =
+        Eigen::Vector3d(H_vec[3 * sol], H_vec[3 * sol + 1], H_vec[3 * sol + 2]);
+    if(step==200) std::cout << sol_vector.transpose() << std::endl;
+    history->array[sol][step][0] = sol_vector;
+    history->array[sol][step][1] = pulse_interactions[sol];
+  }
 }

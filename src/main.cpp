@@ -27,24 +27,20 @@ int main(int argc, char *argv[])
     auto qds = make_shared<DotVector>(import_dots(config.qd_path));
     qds->resize(config.num_particles);
 
-    // Set up Pulses
+    // Set up History
+    auto history = std::make_shared<Integrator::History<soltype>>(
+        config.num_particles, 22, config.num_timesteps);
+    history->fill(soltype(0, 0, 0));
+
+    // Set up Interactions
     auto pulses = make_shared<PulseVector>(import_pulses(config.pulse_path));
     for(int p = 0; p < static_cast<int>(pulses->size()); ++p) {
       // computes sigma and td of the pulse
       (*pulses)[p].compute_parameters(config.c0);
     }
-    const double dt = (*pulses)[0].compute_dt();
-    const double num_timesteps =
-        static_cast<int>(std::ceil(config.total_time / dt));
-
-    // Set up History
-    auto history = std::make_shared<Integrator::History<soltype>>(
-        config.num_particles, 22, num_timesteps);
-    history->fill(soltype(0, 0, 0));
-
-    // Set up Interactions
     auto dyadic =
         make_shared<Propagation::FixedFramePropagator>(config.c0, config.e0);
+    const double dt = (*pulses)[0].compute_dt();
 
     std::vector<std::shared_ptr<Interaction>> interactions{
         make_shared<PulseInteraction>(qds, pulses, config.hbar, dt),
@@ -69,12 +65,10 @@ int main(int argc, char *argv[])
     ofstream outfile("output.dat");
     ofstream pulsefile("pulseout.dat");
     outfile << scientific << setprecision(15);
-    for(int t = 0; t < num_timesteps; ++t) {
+    for(int t = 0; t < config.num_timesteps; ++t) {
       for(int n = 0; n < config.num_particles; ++n) {
         outfile << history->array[n][t][0].transpose() << " ";
-        // pulsefile << history->array[n][t][1].transpose() << " ";
-        pulsefile << (*pulses)[0](Eigen::Vector3d(0, 0, 0), t * dt).transpose()
-                  << " ";
+        pulsefile << history->array[n][t][1].transpose() << " ";
       }
       outfile << "\n";
       pulsefile << "\n";
