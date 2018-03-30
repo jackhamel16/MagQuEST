@@ -39,7 +39,9 @@ void Integrator::LLG_RHS::evaluate(const int step) const
       Eigen::Map<Eigen::Matrix<double, Eigen::Dynamic, 1>>(
           interactions_past[0].data(), 3 * num_solutions);
 
-  auto GMRES_output = GMRES::GMRES(interactions[1], H_vec,
+  //auto GMRES_output = GMRES::GMRES(interactions[1], H_vec,
+                                   //interactions_past_vec, H, m, max_iter, tol);
+  GMRES::GMRES(interactions[1], H_vec,
                                    interactions_past_vec, H, m, max_iter, tol);
 
   for(int sol = 0; sol < num_solutions; ++sol) {
