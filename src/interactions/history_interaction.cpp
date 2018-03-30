@@ -21,7 +21,7 @@ HistoryInteraction::HistoryInteraction(
       c0(c0)
 {
   build_coefficient_table();
-  chi = 5000;
+  chi = 1;
 }
 
 void HistoryInteraction::build_coefficient_table()
@@ -72,8 +72,8 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
 
       if(now_interactions[pair_idx] == 1 && i == 0) continue;
       
-      results[src] += coefficients[pair_idx][i] * history->array[obs][s - i][0];
-      results[obs] += coefficients[pair_idx][i] * history->array[src][s - i][0];
+      results[src] += coefficients[pair_idx][i] * chi * history->array[obs][s - i][0];
+      results[obs] += coefficients[pair_idx][i] * chi * history->array[src][s - i][0];
     }
   }
   return results;
@@ -95,7 +95,7 @@ const Eigen::Matrix<double, Eigen::Dynamic, 1>
 
     Eigen::Vector3d src_field = coefficients[now_pairs[i]][0] * chi * obs_vec;
     Eigen::Vector3d obs_field = coefficients[now_pairs[i]][0] * chi * src_vec;
-
+    
     results_now[3 * src] -= src_field[0];
     results_now[3 * src + 1] -= src_field[1];
     results_now[3 * src + 2] -= src_field[2];
