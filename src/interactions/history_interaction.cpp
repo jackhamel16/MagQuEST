@@ -21,7 +21,7 @@ HistoryInteraction::HistoryInteraction(
       c0(c0)
 {
   build_coefficient_table();
-  chi = 0;
+  chi = 5000;
 }
 
 void HistoryInteraction::build_coefficient_table()
@@ -85,7 +85,6 @@ const Eigen::Matrix<double, Eigen::Dynamic, 1>
 { 
   for(int i = 0; i < static_cast<int>(results_now.size()); ++i){
     results_now[i] = (1 + chi / 3) * H_vec[i];  // Identity - self-interaction
-    //std::cout << results_now[i] << std::endl; 
     }
   for(int i = 0; i < static_cast<int>(now_pairs.size()); ++i) {
     int src, obs;

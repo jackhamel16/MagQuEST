@@ -26,7 +26,7 @@ void Integrator::LLG_RHS::evaluate(const int step) const
 
   int m = 50;
   int max_iter = 200;
-  double tol = 1e-9;
+  double tol = 1e-4;
   Eigen::Matrix<double, 51, 51> H;  // m+1 x m+1
 
   std::vector<Eigen::Vector3d> interactions_past(num_solutions);
@@ -41,13 +41,10 @@ void Integrator::LLG_RHS::evaluate(const int step) const
 
   auto GMRES_output = GMRES::GMRES(interactions[1], H_vec,
                                    interactions_past_vec, H, m, max_iter, tol);
-  //if(step==200)for(int i=0; i <3*num_solutions; ++i) std::cout << H_vec[i] <<std::endl;
 
   for(int sol = 0; sol < num_solutions; ++sol) {
     Eigen::Vector3d sol_vector =
         Eigen::Vector3d(H_vec[3 * sol], H_vec[3 * sol + 1], H_vec[3 * sol + 2]);
-    if(step==200) std::cout << sol_vector.transpose() << std::endl;
     history->array[sol][step][0] = sol_vector;
-    history->array[sol][step][1] = pulse_interactions[sol];
   }
 }
