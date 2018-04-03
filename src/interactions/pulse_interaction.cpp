@@ -18,6 +18,5 @@ const Interaction::ResultArray &PulseInteraction::evaluate(const int time_idx)
       results[i] += (*pulses)[n]((*dots)[i].position(), time);
     }
   }
-
   return results;
 }
