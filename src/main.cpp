@@ -9,6 +9,7 @@
 #include "integrator/RHS/llg_rhs.h"
 #include "integrator/history.h"
 #include "integrator/integrator.h"
+#include "integrator/euler.h"
 #include "interactions/green_function.h"
 #include "interactions/history_interaction.h"
 #include "interactions/pulse_interaction.h"
@@ -61,8 +62,9 @@ int main(int argc, char *argv[])
         std::make_unique<Integrator::LLG_RHS>(
             config.dt, history, std::move(interactions), std::move(rhs_funcs));
 
-    Integrator::PredictorCorrector<soltype> solver(dt, 18, 22, 3.15, history,
-                                                   llg_rhs);
+    //Integrator::PredictorCorrector<soltype> solver(dt, 18, 22, 3.15, history,
+                                                   //llg_rhs);
+    EulerIntegrator solver(dt, history, llg_rhs);
 
     cout << "Solving..." << endl;
     solver.solve();
