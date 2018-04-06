@@ -24,8 +24,10 @@ void Integrator::LLG_RHS::evaluate(const int step) const
 
   for(int sol = 0; sol < num_solutions; ++sol) {
     history->array[sol][step][1] =
-        rhs_functions[sol](history->array[sol][step][0],
-                           pulse_interactions[sol] + history_interactions[sol] +
-                               self_interactions[sol]);
+        rhs_functions[sol](history->array[sol][step][0],                   
+                               pulse_interactions[sol]);
+        //rhs_functions[sol](history->array[sol][step][0],
+                           //pulse_interactions[sol] + history_interactions[sol] +
+                               //self_interactions[sol]);
   }
 }

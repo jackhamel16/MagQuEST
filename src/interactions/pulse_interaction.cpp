@@ -18,5 +18,7 @@ const Interaction::ResultArray &PulseInteraction::evaluate(const int time_idx)
       results[i] += (*pulses)[n]((*dots)[i].position(), time);
     }
   }
+  if((time_idx > 525) && (time_idx < 545)) std::cout << "0: " << time_idx << " " << results[0].transpose() << std::endl;
+  if((time_idx > 600) && (time_idx < 620)) std::cout << "1: " << time_idx << " " << results[1].transpose() << std::endl;
   return results;
 }

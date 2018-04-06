@@ -73,12 +73,13 @@ int main(int argc, char *argv[])
     ofstream outfile("output.dat");
     ofstream pulsefile("pulseout.dat");
     outfile << scientific << setprecision(15);
+    pulsefile << scientific << setprecision(15);
     for(int t = 0; t < num_timesteps; ++t) {
       for(int n = 0; n < config.num_particles; ++n) {
         outfile << history->array[n][t][0].transpose() << " ";
-        // pulsefile << history->array[n][t][1].transpose() << " ";
-        pulsefile << (*pulses)[0](Eigen::Vector3d(0, 0, 0), t * dt).transpose()
-                  << " ";
+        pulsefile << history->array[n][t][1].transpose() << " ";
+        //pulsefile << (*pulses)[0](Eigen::Vector3d(0, 0, 0), t * dt).transpose()
+                 //<< " ";
       }
       outfile << "\n";
       pulsefile << "\n";
