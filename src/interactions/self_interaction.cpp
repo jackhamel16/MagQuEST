@@ -11,7 +11,7 @@ SelfInteraction::SelfInteraction(
 const Interaction::ResultArray &SelfInteraction::evaluate(const int time_idx)
 {
   for(int i = 0; i < static_cast<int>(dots->size()); ++i) {
-    results_now[i] = -chi * history->array[i][time_idx][0] / 3;
+    results[i] = -chi * history->array[i][time_idx][0] / 3;
   }
-  return results_now;
+  return results;
 }

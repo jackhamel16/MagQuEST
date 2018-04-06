@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
     auto history = std::make_shared<Integrator::History<soltype>>(
         config.num_particles, 22, num_timesteps);
     history->fill(soltype(0, 0, 0));
+    history->initialize_past(qds);
 
     // Set up Interactions
     auto dyadic =
@@ -49,12 +50,13 @@ int main(int argc, char *argv[])
     std::vector<std::shared_ptr<Interaction>> interactions{
         make_shared<PulseInteraction>(qds, pulses, config.hbar, dt),
         make_shared<HistoryInteraction>(
-            qds, history, dyadic, config.interpolation_order, dt, config.c0)};
+            qds, history, dyadic, config.interpolation_order, dt, config.c0),
+        make_shared<SelfInteraction>(qds, history)};
 
     // Set up RHS functions
     auto rhs_funcs = rhs_functions(*qds);
 
-    // Set up Bloch RHS
+    // Set up LLG RHS
     std::unique_ptr<Integrator::RHS<soltype>> llg_rhs =
         std::make_unique<Integrator::LLG_RHS>(
             config.dt, history, std::move(interactions), std::move(rhs_funcs));

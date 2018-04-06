@@ -9,14 +9,12 @@ class EulerIntegrator;
 
 class EulerIntegrator {
  public:
-  EulerIntegrator(const int,
-                  const double,
+  EulerIntegrator(const double,
                   const std::shared_ptr<Integrator::History<Eigen::Vector3d>> &,
                   std::unique_ptr<Integrator::RHS<Eigen::Vector3d>> &);
-  void solve() const;
+  void solve(const int) const;
 
  private:
-  const int step;
   const double dt;
   const std::shared_ptr<Integrator::History<Eigen::Vector3d>> history;
   std::unique_ptr<Integrator::RHS<Eigen::Vector3d>> rhs_functions;
