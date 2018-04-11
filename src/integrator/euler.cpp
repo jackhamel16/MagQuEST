@@ -22,10 +22,8 @@ void EulerIntegrator::solve() const
 void EulerIntegrator::solve_step(const int step) const
 {
   for(int src = 0; src < static_cast<int>(history->array.shape()[0]); ++src) {
-    //std::cout << src << std::endl;
     history->array[src][step][0] = history->array[src][step - 1][1] * dt +
                                    history->array[src][step - 1][0];
-    //std::cout << src << std::endl;
   }
   rhs_functions->evaluate(step);
 }

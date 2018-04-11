@@ -5,7 +5,10 @@
 #include "RHS/rhs.h"
 #include "history.h"
 
-class EulerIntegrator;
+namespace Integrator {
+  template <class soltype>
+  class Euler;
+}
 
 class EulerIntegrator {
  public:
