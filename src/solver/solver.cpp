@@ -14,6 +14,9 @@ Solver::Solver(
       num_solutions(history->array.shape()[0])
 {
 }
-
-
+void Solver::solve() {
+  for(int step = 0; step < time_idx_ubound; ++step) {
+    solve_step(step);
+  }
+}
 

@@ -9,9 +9,10 @@ class Solver {
   public:
     Solver(const double, const std::shared_ptr<Integrator::History<Eigen::Vector3d>> &,
         const std::vector<std::shared_ptr<Interaction>>, rhs_func_vector &);
-    virtual void solve() = 0;
+    void solve();
+    virtual void solve_step(int) = 0;
 
-  private:
+  protected:
     const double dt;
     std::shared_ptr<Integrator::History<Eigen::Vector3d>> history;
     std::vector<std::shared_ptr<Interaction>> interactions;

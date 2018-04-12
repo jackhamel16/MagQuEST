@@ -9,7 +9,7 @@ class NewtonSolver : public Solver {
                const std::shared_ptr<Integrator::History<Eigen::Vector3d>> &,
                const std::vector<std::shared_ptr<Interaction>>,
                rhs_func_vector &);
-  virtual void solve(int);
+  virtual void solve_step(int);
 };
 
 #endif
