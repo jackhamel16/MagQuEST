@@ -29,7 +29,6 @@ class Propagation::Propagator {
  protected:
   double c;
   double eps;
-  double vol;
 };
 
 class Propagation::FixedFramePropagator
