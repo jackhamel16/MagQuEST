@@ -15,7 +15,7 @@ Solver::Solver(
 {
 }
 void Solver::solve() {
-  for(int step = 0; step < time_idx_ubound; ++step) {
+  for(int step = 1; step < time_idx_ubound; ++step) {
     solve_step(step);
   }
 }

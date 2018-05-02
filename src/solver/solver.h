@@ -1,6 +1,7 @@
 #ifndef SOLVER
 #define SOLVER
 
+#include <functional>
 #include <Eigen/Dense>
 #include "../integrator/history.h"
 #include "../interactions/interaction.h"

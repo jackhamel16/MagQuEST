@@ -14,6 +14,8 @@
 #include "interactions/history_interaction.h"
 #include "interactions/pulse_interaction.h"
 #include "interactions/self_interaction.h"
+#include "solver/solver.h"
+#include "solver/newton.h"
 
 using namespace std;
 
@@ -57,14 +59,7 @@ int main(int argc, char *argv[])
     // Set up RHS functions
     auto rhs_funcs = rhs_functions(*qds);
 
-    // Set up LLG RHS
-    std::unique_ptr<Integrator::RHS<soltype>> llg_rhs =
-        std::make_unique<Integrator::LLG_RHS>(
-            config.dt, history, std::move(interactions), std::move(rhs_funcs));
-
-    //Integrator::PredictorCorrector<soltype> solver(dt, 18, 22, 3.15, history,
-                                                   //llg_rhs);
-    EulerIntegrator solver(dt, history, llg_rhs);
+    NewtonSolver solver(dt, history, std::move(interactions), rhs_funcs);
 
     cout << "Solving..." << endl;
     solver.solve();
