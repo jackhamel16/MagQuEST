@@ -59,7 +59,8 @@ int main(int argc, char *argv[])
     // Set up RHS functions
     auto rhs_funcs = rhs_functions(*qds);
 
-    NewtonSolver solver(dt, history, std::move(interactions), rhs_funcs);
+    double newton_iters = 10;
+    NewtonSolver solver(dt, newton_iters, history, std::move(interactions), rhs_funcs);
 
     cout << "Solving..." << endl;
     solver.solve();
