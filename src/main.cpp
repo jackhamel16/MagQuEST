@@ -32,19 +32,22 @@ int main(int argc, char *argv[])
 
     // Set up Pulses
     auto pulses = make_shared<PulseVector>(import_pulses(config.pulse_path));
+    double dc_field = 0;
     for(int p = 0; p < static_cast<int>(pulses->size()); ++p) {
       // computes sigma and td of the pulse
       (*pulses)[p].compute_parameters(config.c0);
+      dc_field += (*pulses)[p].get_dc_field();
     }
     const double dt = (*pulses)[0].compute_dt();
     const double num_timesteps =
         static_cast<int>(std::ceil(config.total_time / dt));
 
     // Set up History
+    const double chi = 1;
     auto history = std::make_shared<Integrator::History<soltype>>(
         config.num_particles, 22, num_timesteps);
-    history->fill(soltype(0, 0, 0));
-    history->initialize_past(qds);
+    history->fill(chi * dc_field * soltype(1, 1, 1));
+    //history->initialize_past(qds);
 
     // Set up Interactions
     auto dyadic =

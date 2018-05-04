@@ -18,19 +18,20 @@ class Pulse {
   Pulse(const double,
         const double,
         const double,
+        const double,
         const Eigen::Vector3d &,
         const Eigen::Vector3d &);
 
   double compute_dt();
   void compute_parameters(const double);
-
+  double get_dc_field();
   Eigen::Vector3d operator()(const Eigen::Vector3d &, const double) const;
 
   friend std::ostream &operator<<(std::ostream &, const Pulse &);
   friend std::istream &operator>>(std::istream &, Pulse &);
 
  private:
-  double amplitude, fc, bw, sigma, td, c;
+  double amplitude, fc, bw, sigma, td, c, dc;
   Eigen::Vector3d wavevector, field_orientation;
 };
 

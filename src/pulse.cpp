@@ -3,11 +3,13 @@
 Pulse::Pulse(const double amplitude,
              const double fc,
              const double bw,
+             const double dc,
              const Eigen::Vector3d &wavevector,
              const Eigen::Vector3d &field_orientation)
     : amplitude(amplitude),
       fc(fc),
       bw(bw),
+      dc(dc),
       wavevector(wavevector.normalized()),
       field_orientation(field_orientation.normalized())
 {
@@ -27,6 +29,8 @@ double Pulse::compute_dt()
   return dt;
 }
 
+double Pulse::get_dc_field() {return dc;}
+
 Eigen::Vector3d Pulse::operator()(const Eigen::Vector3d &r,
                                   const double t) const
 {
@@ -37,16 +41,16 @@ Eigen::Vector3d Pulse::operator()(const Eigen::Vector3d &r,
 
 std::ostream &operator<<(std::ostream &os, const Pulse &p)
 {
-  os << p.amplitude << " " << p.fc << " " << p.bw << " "
+  os << p.amplitude << " " << p.fc << " " << p.bw << " " << p.dc << " "
      << p.wavevector.transpose() << " " << p.field_orientation.transpose();
   return os;
 }
 
 std::istream &operator>>(std::istream &is, Pulse &p)
 {
-  is >> p.amplitude >> p.fc >> p.bw >> p.wavevector[0] >> p.wavevector[1] >>
-      p.wavevector[2] >> p.field_orientation[0] >> p.field_orientation[1] >>
-      p.field_orientation[2];
+  is >> p.amplitude >> p.fc >> p.bw >> p.dc >> p.wavevector[0] >>
+      p.wavevector[1] >> p.wavevector[2] >> p.field_orientation[0] >>
+      p.field_orientation[1] >> p.field_orientation[2];
   return is;
 }
 
