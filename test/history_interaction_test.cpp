@@ -69,6 +69,7 @@ struct Universe {
 
 BOOST_FIXTURE_TEST_CASE(history_interaction, Universe)
 {
+  double tolerance = 1e-4;
   vec3d pos1(0, 0, 0);
   vec3d pos2(0, 0, 6.5 * c * dt);
   const double total_t = 10;
@@ -92,12 +93,11 @@ BOOST_FIXTURE_TEST_CASE(history_interaction, Universe)
       DotVector({MagneticParticle(pos1, 1, 1, 1, Eigen::Vector3d::Zero()),
                  MagneticParticle(pos2, 1, 1, 1, Eigen::Vector3d::Zero())})));
 
-  HistoryInteraction history_interaction(dots, history, propagator, 7, dt, c);
+  HistoryInteraction history_interaction(dots, history, propagator, 3, dt, c);
   std::vector<Eigen::Vector3d> obs_fields(steps);
   std::vector<Eigen::Vector3d> src_fields(steps);
   std::vector<Eigen::Vector3d> analytic(steps);
 
-  // std::cout << std::scientific << std::setprecision(8);
   for(int i = 1; i < steps; ++i) {
     Eigen::Vector3d magd0 = mag_d0_source(i * dt, delay);
     Eigen::Vector3d magd1 = mag_d1_source(i * dt, delay);
@@ -110,51 +110,51 @@ BOOST_FIXTURE_TEST_CASE(history_interaction, Universe)
     analytic[i] = interaction;
 
     BOOST_CHECK_MESSAGE(
-        std::abs(interaction[0] - obs_fields[i][0]) < 1e-8,
+        std::abs(interaction[0] - obs_fields[i][0]) < tolerance,
         "Analytic Solution = "
             << interaction[0] << " and obs_field = " << obs_fields[i][0]
             << " solution do match match in x-direction at step = " << i
             << "\n");
     BOOST_CHECK_MESSAGE(
-        std::abs(interaction[1] - obs_fields[i][1]) < 1e-8,
+        std::abs(interaction[1] - obs_fields[i][1]) < tolerance,
         "Analytic Solution = "
             << interaction[1] << " and obs_field = " << obs_fields[i][1]
             << " solution do match match in y-direction at step = " << i
             << "\n");
     BOOST_CHECK_MESSAGE(
-        std::abs(interaction[2] - obs_fields[i][2]) < 1e-8,
+        std::abs(interaction[2] - obs_fields[i][2]) < tolerance,
         "Analytic Solution = "
             << interaction[2] << " and obs_field = " << obs_fields[i][2]
             << " solution do match match in z-direction at step = " << i
             << "\n");
     BOOST_CHECK_MESSAGE(
-        std::abs(interaction[0] - src_fields[i][0]) < 1e-8,
+        std::abs(interaction[0] - src_fields[i][0]) < tolerance,
         "Analytic Solution = "
             << interaction[0] << " and src_field = " << src_fields[i][0]
             << " solution do match match in x-direction at step = " << i
             << "\n");
     BOOST_CHECK_MESSAGE(
-        std::abs(interaction[1] - src_fields[i][1]) < 1e-8,
+        std::abs(interaction[1] - src_fields[i][1]) < tolerance,
         "Analytic Solution = "
             << interaction[1] << " and src_field = " << src_fields[i][1]
             << " solution do match match in y-direction at step = " << i
             << "\n");
     BOOST_CHECK_MESSAGE(
-        std::abs(interaction[2] - src_fields[i][2]) < 1e-8,
+        std::abs(interaction[2] - src_fields[i][2]) < tolerance,
         "Analytic Solution = "
             << interaction[2] << " and src_field = " << src_fields[i][2]
             << " solution do match match in z-direction at step = " << i
             << "\n");
   }
 
-  // std::ofstream outfile;
-  // outfile.open("fields.dat");
-  // outfile << std::scientific << std::setprecision(15);
-  // for(int i = 0; i < steps; ++i) {
-  // outfile << obs_fields[i].transpose() << " | "
-  //<< src_fields[i].transpose() << " | "
-  //<< analytic[i].transpose() << std::endl;
-  //}
-  // outfile.close();
+   std::ofstream outfile;
+   outfile.open("fields.dat");
+   outfile << std::scientific << std::setprecision(15);
+   for(int i = 0; i < steps; ++i) {
+   outfile << obs_fields[i][1] << " | "
+  << src_fields[i][1] << " | "
+  << analytic[i][1] << std::endl;
+  }
+   outfile.close();
 }
 BOOST_AUTO_TEST_SUITE_END()
