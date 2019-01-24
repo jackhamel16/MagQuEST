@@ -1,19 +1,29 @@
 #include "euler.h"
 
 EulerIntegrator::EulerIntegrator(
-    const int step,
     const double dt,
     const std::shared_ptr<Integrator::History<Eigen::Vector3d>> &history,
     std::unique_ptr<Integrator::RHS<Eigen::Vector3d>> &rhs_functions)
-    : step(step), dt(dt), history(history), rhs_functions(std::move(rhs_functions))
+    : time_idx_ubound(history->array.index_bases()[1] +
+                      history->array.shape()[1]),
+      dt(dt),
+      history(history),
+      rhs_functions(std::move(rhs_functions))
 {
 }
 
 void EulerIntegrator::solve() const
 {
-  rhs_functions->evaluate(step);
-  for(unsigned int num = 0; num < history->array.size(); ++num) {
-    history->array[step + 1][num][0] =
-        history->array[step][num][1] * dt + history->array[step][num][0];
+  for(int step = 0; step < time_idx_ubound; ++step) {
+    solve_step(step);
   }
+}
+
+void EulerIntegrator::solve_step(const int step) const
+{
+  for(int src = 0; src < static_cast<int>(history->array.shape()[0]); ++src) {
+    history->array[src][step][0] = history->array[src][step - 1][1] * dt +
+                                   history->array[src][step - 1][0];
+  }
+  rhs_functions->evaluate(step);
 }

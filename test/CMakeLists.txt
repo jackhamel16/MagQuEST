@@ -8,9 +8,10 @@ if(${Boost_FOUND})
   target_sources(qtest-bin
     PUBLIC
       "${CMAKE_CURRENT_LIST_DIR}/integrator_test.cpp"
+      #"${CMAKE_CURRENT_LIST_DIR}/euler_test.cpp"
       "${CMAKE_CURRENT_LIST_DIR}/lagrange_set_test.cpp"
       #"${CMAKE_CURRENT_LIST_DIR}/propagator_test.cpp"
-      "${CMAKE_CURRENT_LIST_DIR}/pulse_interaction_test.cpp"
+      #"${CMAKE_CURRENT_LIST_DIR}/pulse_interaction_test.cpp"
       #"${CMAKE_CURRENT_LIST_DIR}/llg_test.cpp"
       "${CMAKE_CURRENT_LIST_DIR}/history_interaction_test.cpp"
   )

@@ -1,8 +1,8 @@
 #ifndef INTERACTION_H
 #define INTERACTION_H
 
-#include <memory>
 #include <Eigen/Dense>
+#include <memory>
 
 #include "../magnetic_particle.h"
 

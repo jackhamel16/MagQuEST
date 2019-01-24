@@ -2,6 +2,7 @@
 #include <fstream>
 #include <ostream>
 #include <string>
+#include "gmres.h"
 
 Integrator::LLG_RHS::LLG_RHS(
     const double dt,
@@ -23,12 +24,10 @@ void Integrator::LLG_RHS::evaluate(const int step) const
 
   for(int sol = 0; sol < num_solutions; ++sol) {
     history->array[sol][step][1] =
-        rhs_functions[sol](history->array[sol][step][0],
-                           pulse_interactions[sol] + history_interactions[sol] +
-                               self_interactions[sol]);
-  }
-  if(step == 0) {
-    std::cout << "step: " << step << "  "
-              << "dM: " << history->array[0][step][1].transpose() << std::endl;
+        rhs_functions[sol](history->array[sol][step][0],                   
+                               pulse_interactions[sol]);
+        //rhs_functions[sol](history->array[sol][step][0],
+                           //pulse_interactions[sol] + history_interactions[sol] +
+                               //self_interactions[sol]);
   }
 }

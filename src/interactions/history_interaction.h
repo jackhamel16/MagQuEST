@@ -30,6 +30,7 @@ class HistoryInteraction : public Interaction {
   boost::multi_array<Eigen::Matrix3d, 2> coefficients;
   const double dt;
   const double c0;
+  double chi;
 
   void build_coefficient_table();
 

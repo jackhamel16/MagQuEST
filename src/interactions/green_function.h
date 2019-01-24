@@ -28,12 +28,15 @@ class Propagation::Propagator {
 
  protected:
   double c;
+  double eps;
 };
 
 class Propagation::FixedFramePropagator
     : public Propagation::Propagator<Propagation::FixedFramePropagator> {
  public:
-  FixedFramePropagator(const double c) : Propagator(c){};
+  FixedFramePropagator(const double c, const double eps)
+      : Propagator(c), eps(eps){};
+  const double eps;
   std::vector<Eigen::Matrix3d> coefficients(
       const Eigen::Vector3d &dr,
       const Interpolation::UniformLagrangeSet &interp) const
@@ -45,9 +48,13 @@ class Propagation::FixedFramePropagator
 
     for(int i = 0; i <= interp.order(); ++i) {
       for(int term = 0; term < 3; ++term) {
-        coefs[i] += -1/(4*M_PI) * dyads[term] * interp.evaluations[term][i];
+        coefs[i] +=
+            -1 / (4 * M_PI) * dyads[term] * interp.evaluations[term][i];
       }
     }
+    //Eigen::Matrix3d x;
+    //x.setZero();
+    //std::cout << std::accumulate(coefs.begin(), coefs.end(), x) << std::endl;
     return coefs;
   }
 
