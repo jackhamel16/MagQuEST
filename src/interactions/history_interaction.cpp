@@ -60,7 +60,7 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
     Vec3d dr(separation((*dots)[src], (*dots)[obs]));
 
     for(int i = 0; i <= interp_order; ++i) {
-      if(s - i < 0) continue;
+      //if(s - i < 0) continue;
 
       results[src] += coefficients[pair_idx][i] * chi * history->array[obs][s - i][0];
       results[obs] += coefficients[pair_idx][i] * chi * history->array[src][s - i][0];
