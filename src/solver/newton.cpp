@@ -38,13 +38,13 @@ vec3d newton_rhs(vec3d mag,
                  rhs_func_vector rhs_functions)
 {
   // may have issues with not recomputing fields when mag is changed
-  return (mag - mag_past) / step + rhs_functions[sol](mag, field);
+  return (mag - mag_past) / step +  -1 * rhs_functions[sol](mag, field); // may need to negate rhs_functions
 }
 
 vec3d test_func(vec3d vec1)
 {
   return vec3d(std::pow(vec1[0], 2) - 4, std::pow(vec1[1], 2) - 4,
-               std::pow(vec1[2], 2) - 4);
+               std::pow(vec1[2], 2) - 4); // f = x^2 - 4
 }
 
 void NewtonSolver::solve_step(int step)
@@ -75,7 +75,7 @@ void NewtonSolver::solve_step(int step)
 
   for(int sol = 0; sol < num_solutions; ++sol) {
     history->array[sol][step][0] =
-        history->array[sol][step - 1][0] + Eigen::Vector3d(1, 1, 1) * 1e-6;
+        history->array[sol][step - 1][0] + Eigen::Vector3d(1, 1, 1) * 1e-12;
   }
 
   for(int iter = 0; iter < max_iter; ++iter) {
@@ -88,6 +88,7 @@ void NewtonSolver::solve_step(int step)
           newton_rhs, std::placeholders::_1, history->array[sol][step - 1][0],
           pulse_interactions[sol] + history_interactions[sol] +
               self_interactions[sol],
+          //sol, dt, rhs_functions);
           sol, step, rhs_functions);
 
       vec3d f_iter = newton_func(history->array[sol][step][0]);
