@@ -9,6 +9,7 @@
 #include "../magnetic_particle.h"
 #include "green_function.h"
 #include "interaction.h"
+#include "../math_utils.h"
 
 class HistoryInteraction : public Interaction {
  public:

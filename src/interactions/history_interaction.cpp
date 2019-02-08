@@ -44,6 +44,7 @@ void HistoryInteraction::build_coefficient_table()
     for(int i = 0; i <= interp_order; ++i) {
       coefficients[pair_idx][i] = interp_dyads[i];
     }
+    std::cout << interp_order << std::endl;
   }
 }
 
@@ -59,11 +60,20 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
 
     Vec3d dr(separation((*dots)[src], (*dots)[obs]));
 
-    for(int i = 0; i <= interp_order; ++i) {
-      //if(s - i < 0) continue;
+    if(time_idx == 500) std::cout << "sep: " << dr.norm() << std::endl;
 
-      results[src] += coefficients[pair_idx][i] * chi * history->array[obs][s - i][0];
-      results[obs] += coefficients[pair_idx][i] * chi * history->array[src][s - i][0];
+    results[0] = gaussian(dt * (time_idx - 500) / 4e-10) * Eigen::Vector3d(0, 1, 0);
+    
+    for(int i = 0; i <= interp_order; ++i) {
+      if(s - i < 0) continue;
+      //if(i == 3) {
+      if(time_idx == 501) std::cout << i << std::endl;
+      results[1] += coefficients[pair_idx][i] * chi * history->array[0][s - i][0];
+      //}
+      //if (i == 0){
+      ////results[1] += history->array[0][s - i][0];
+      //results[0] = gaussian(dt * (time_idx - 500) / 4e-10) * Eigen::Vector3d(0, 1, 0);
+      //}
     }
   }
   return results;
