@@ -7,15 +7,15 @@
 
 #include "configuration.h"
 #include "integrator/RHS/llg_rhs.h"
+#include "integrator/euler.h"
 #include "integrator/history.h"
 #include "integrator/integrator.h"
-#include "integrator/euler.h"
 #include "interactions/green_function.h"
 #include "interactions/history_interaction.h"
 #include "interactions/pulse_interaction.h"
 #include "interactions/self_interaction.h"
-#include "solver/solver.h"
 #include "solver/newton.h"
+#include "solver/solver.h"
 
 using namespace std;
 
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     auto history = std::make_shared<Integrator::History<soltype>>(
         config.num_particles, 22, num_timesteps);
     history->fill(chi * dc_field * soltype(1, 1, 1));
-    //history->initialize_past(qds);
+    // history->initialize_past(qds);
 
     // Set up Interactions
     auto dyadic =
@@ -59,14 +59,29 @@ int main(int argc, char *argv[])
             qds, history, dyadic, config.interpolation_order, dt, config.c0),
         make_shared<SelfInteraction>(qds, history)};
 
-    // Set up RHS functions
-    auto rhs_funcs = rhs_functions(*qds);
+    std::cout << "dt: " << dt << std::endl;
+    std::cout << separation((*qds)[0], (*qds)[1]).norm() / dt << std::endl;
+    for(int step = 0; step < num_timesteps; ++step) {
+      auto pulse_interactions = interactions[0]->evaluate(step);
+      auto history_interactions = interactions[1]->evaluate(step);
+      auto self_interactions = interactions[2]->evaluate(step);
 
-    double newton_iters = 10;
-    NewtonSolver solver(dt, newton_iters, history, std::move(interactions), rhs_funcs);
-
-    cout << "Solving..." << endl;
-    solver.solve();
+      history->array[0][step][0] = history_interactions[0];
+      history->array[1][step][0] = history_interactions[1];
+      //history->array[1][step][0] =
+          //chi * (pulse_interactions[1] +
+                 //history_interactions[1] +
+                 //self_interactions[1]);
+      //history->array[0][step][0] = history_interactions[0];
+     
+      //for(int particle_idx = 0; particle_idx < config.num_particles;
+          //++particle_idx) {
+        //history->array[particle_idx][step][0] =
+            //chi * (pulse_interactions[particle_idx] +
+                   //history_interactions[particle_idx] +
+                   //self_interactions[particle_idx]);
+      //}
+    }
 
     cout << "Writing output..." << endl;
     ofstream outfile("output.dat");
@@ -77,13 +92,13 @@ int main(int argc, char *argv[])
       for(int n = 0; n < config.num_particles; ++n) {
         outfile << history->array[n][t][0].transpose() << " ";
         pulsefile << history->array[n][t][1].transpose() << " ";
-        //pulsefile << (*pulses)[0](Eigen::Vector3d(0, 0, 0), t * dt).transpose()
-                 //<< " ";
+        // pulsefile << (*pulses)[0](Eigen::Vector3d(0, 0, 0), t *
+        // dt).transpose()
+        //<< " ";
       }
       outfile << "\n";
       pulsefile << "\n";
     }
-
   } catch(CommandLineException &e) {
     // User most likely queried for help or version info, so we can silently
     // move on
