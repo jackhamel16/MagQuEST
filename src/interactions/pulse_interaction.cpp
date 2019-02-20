@@ -16,7 +16,7 @@ const Interaction::ResultArray &PulseInteraction::evaluate(const int time_idx)
     results[i] = Eigen::Vector3d(0, 0, 0);
     for(int n = 0; n < static_cast<int>(pulses->size()); ++n) {
       results[i] += (*pulses)[n]((*dots)[i].position(), time) +
-                    (*pulses)[n].get_dc_field() * soltype(1, 1, 1);
+                    (*pulses)[n].get_dc_field() * soltype(0, 1, 0);
     }
   }
   return results;

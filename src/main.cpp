@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     const double chi = 1;
     auto history = std::make_shared<Integrator::History<soltype>>(
         config.num_particles, 22, num_timesteps);
-    history->fill(chi * dc_field * soltype(1, 1, 1));
+    history->fill(soltype(1, 0, 0));
     // history->initialize_past(qds);
 
     // Set up Interactions
@@ -59,29 +59,13 @@ int main(int argc, char *argv[])
             qds, history, dyadic, config.interpolation_order, dt, config.c0),
         make_shared<SelfInteraction>(qds, history)};
 
-    std::cout << "dt: " << dt << std::endl;
-    std::cout << separation((*qds)[0], (*qds)[1]).norm() / dt << std::endl;
-    for(int step = 0; step < num_timesteps; ++step) {
-      auto pulse_interactions = interactions[0]->evaluate(step);
-      auto history_interactions = interactions[1]->evaluate(step);
-      auto self_interactions = interactions[2]->evaluate(step);
-
-      history->array[0][step][0] = history_interactions[0];
-      history->array[1][step][0] = history_interactions[1];
-      //history->array[1][step][0] =
-          //chi * (pulse_interactions[1] +
-                 //history_interactions[1] +
-                 //self_interactions[1]);
-      //history->array[0][step][0] = history_interactions[0];
-     
-      //for(int particle_idx = 0; particle_idx < config.num_particles;
-          //++particle_idx) {
-        //history->array[particle_idx][step][0] =
-            //chi * (pulse_interactions[particle_idx] +
-                   //history_interactions[particle_idx] +
-                   //self_interactions[particle_idx]);
-      //}
-    }
+    rhs_func_vector rhs_funcs = rhs_functions(*qds);
+    std::unique_ptr<Integrator::RHS<soltype>> llg_rhs =
+        std::make_unique<Integrator::LLG_RHS>(dt, history, std::move(interactions), std::move(rhs_funcs));
+   
+    EulerIntegrator solver(dt, history, llg_rhs);
+    solver.solve();
+    // EulerIntegrator integrator(dt, history,
 
     cout << "Writing output..." << endl;
     ofstream outfile("output.dat");

@@ -17,7 +17,8 @@ soltype MagneticParticle::llg_rhs(const soltype &mag,
   const Eigen::Vector3d mxh = mag.cross(hfield);
   const double gamma = gamma0 / ( 1 + std::pow(alpha,2));
 
-  return -gamma * mxh - gamma * alpha / sat_mag * mag.cross(mxh);
+  return -gamma * mxh; 
+  //return -gamma * mxh - gamma * alpha / sat_mag * mag.cross(mxh);
 }
 
 const Eigen::Vector3d separation(const MagneticParticle &mp1,
