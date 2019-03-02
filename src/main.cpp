@@ -38,10 +38,12 @@ int main(int argc, char *argv[])
       (*pulses)[p].compute_parameters(config.c0);
       dc_field += (*pulses)[p].get_dc_field();
     }
-    const double dt = (*pulses)[0].compute_dt();
+    //const double dt = (*pulses)[0].compute_dt();
+    const double dt = 2.5e-13;
     const double num_timesteps =
         static_cast<int>(std::ceil(config.total_time / dt));
-
+    std::cout << dt <<std::endl;
+    std::cout << num_timesteps <<std::endl;
     // Set up History
     const double chi = 1;
     auto history = std::make_shared<Integrator::History<soltype>>(
@@ -62,20 +64,22 @@ int main(int argc, char *argv[])
     rhs_func_vector rhs_funcs = rhs_functions(*qds);
     std::unique_ptr<Integrator::RHS<soltype>> llg_rhs =
         std::make_unique<Integrator::LLG_RHS>(dt, history, std::move(interactions), std::move(rhs_funcs));
-   
-    EulerIntegrator solver(dt, history, llg_rhs);
+
+    Integrator::PredictorCorrector<soltype> solver(
+        dt, 18, 22, 3.15, history, llg_rhs);   
+    //EulerIntegrator solver(dt, history, llg_rhs);
     solver.solve();
     // EulerIntegrator integrator(dt, history,
 
     cout << "Writing output..." << endl;
-    ofstream outfile("output.dat");
+    ofstream outfile("pc_time3.dat");
     ofstream pulsefile("pulseout.dat");
     outfile << scientific << setprecision(15);
     pulsefile << scientific << setprecision(15);
     for(int t = 0; t < num_timesteps; ++t) {
       for(int n = 0; n < config.num_particles; ++n) {
         outfile << history->array[n][t][0].transpose() << " ";
-        pulsefile << history->array[n][t][1].transpose() << " ";
+        pulsefile << (*pulses)[0](soltype(0,0,0), dt * t).transpose() << " ";
         // pulsefile << (*pulses)[0](Eigen::Vector3d(0, 0, 0), t *
         // dt).transpose()
         //<< " ";

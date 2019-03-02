@@ -34,10 +34,13 @@ double Pulse::get_dc_field() {return dc;}
 Eigen::Vector3d Pulse::operator()(const Eigen::Vector3d &r,
                                   const double t) const
 {
-  return Eigen::Vector3d(0, 1e5 * t, 0);
+  //return Eigen::Vector3d(0, 1e5 * t, 0);
   //const double arg = wavevector.normalized().dot(r) / c - (t - td);
-  //return (amplitude * field_orientation.normalized() * gaussian(arg / sigma));// *
-          //cos(2 * M_PI * fc * arg));
+  //double arg = - (t - 500 / (20 * (fc + bw)));
+  double arg = - (t - 500 * 4.545454545455e-12);
+  //return (amplitude * field_orientation.normalized() * gaussian(arg / 4e-10));
+  return (amplitude * field_orientation.normalized() * gaussian(arg / 4e-10) *
+          cos(2 * M_PI * fc * arg));
 }
 
 std::ostream &operator<<(std::ostream &os, const Pulse &p)
