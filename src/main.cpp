@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     // EulerIntegrator integrator(dt, history,
 
     cout << "Writing output..." << endl;
-    ofstream outfile("pc_time3.dat");
+    ofstream outfile("full_time_pc3.dat");
     ofstream pulsefile("pulseout.dat");
     outfile << scientific << setprecision(15);
     pulsefile << scientific << setprecision(15);
