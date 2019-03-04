@@ -65,14 +65,14 @@ int main(int argc, char *argv[])
     std::unique_ptr<Integrator::RHS<soltype>> llg_rhs =
         std::make_unique<Integrator::LLG_RHS>(dt, history, std::move(interactions), std::move(rhs_funcs));
 
-    Integrator::PredictorCorrector<soltype> solver(
-        dt, 18, 22, 3.15, history, llg_rhs);   
-    //EulerIntegrator solver(dt, history, llg_rhs);
+    //Integrator::PredictorCorrector<soltype> solver(
+        //dt, 18, 22, 3.15, history, llg_rhs);   
+    EulerIntegrator solver(dt, history, llg_rhs);
     solver.solve();
     // EulerIntegrator integrator(dt, history,
 
     cout << "Writing output..." << endl;
-    ofstream outfile("full_time_pc3.dat");
+    ofstream outfile("euler_time_nohist3.dat");
     ofstream pulsefile("pulseout.dat");
     outfile << scientific << setprecision(15);
     pulsefile << scientific << setprecision(15);

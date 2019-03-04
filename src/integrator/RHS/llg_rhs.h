@@ -19,7 +19,7 @@ class Integrator::LLG_RHS : public RHS<Eigen::Vector3d> {
   void evaluate(const int) const override;
 
  private:
-  int num_solutions;
+  int num_particles;
   std::vector<std::shared_ptr<Interaction>> interactions;
   rhs_func_vector rhs_functions;
 };
