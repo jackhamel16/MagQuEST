@@ -59,21 +59,11 @@ const Interaction::ResultArray &HistoryInteraction::evaluate(const int time_idx)
     const int s = time_idx - floor_delays[pair_idx];
 
     Vec3d dr(separation((*dots)[src], (*dots)[obs]));
-
-    if(time_idx == 500) std::cout << "sep: " << dr.norm() << std::endl;
-
-    results[0] = gaussian(dt * (time_idx - 500) / 4e-10) * Eigen::Vector3d(0, 1, 0);
     
     for(int i = 0; i <= interp_order; ++i) {
       if(s - i < 0) continue;
-      //if(i == 3) {
-      if(time_idx == 501) std::cout << i << std::endl;
-      results[1] += coefficients[pair_idx][i] * chi * history->array[0][s - i][0];
-      //}
-      //if (i == 0){
-      ////results[1] += history->array[0][s - i][0];
-      //results[0] = gaussian(dt * (time_idx - 500) / 4e-10) * Eigen::Vector3d(0, 1, 0);
-      //}
+      results[obs] += coefficients[pair_idx][i] * history->array[src][s - i][0];
+      results[src] += coefficients[pair_idx][i] * history->array[obs][s - i][0];
     }
   }
   return results;

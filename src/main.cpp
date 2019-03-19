@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
       dc_field += (*pulses)[p].get_dc_field();
     }
     //const double dt = (*pulses)[0].compute_dt();
-    const double dt = 2.5e-13;
+    const double dt = .5e-13;
     const double num_timesteps =
         static_cast<int>(std::ceil(config.total_time / dt));
     std::cout << dt <<std::endl;
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     // EulerIntegrator integrator(dt, history,
 
     cout << "Writing output..." << endl;
-    ofstream outfile("euler_time_nohist3.dat");
+    ofstream outfile("output.dat");
     ofstream pulsefile("pulseout.dat");
     outfile << scientific << setprecision(15);
     pulsefile << scientific << setprecision(15);
