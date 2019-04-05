@@ -1,13 +1,11 @@
 #include "magnetic_particle.h"
 
 MagneticParticle::MagneticParticle(const Eigen::Vector3d &pos,
-                                   const double alpha, const double gamma0,
-                                   const double sat_mag, const soltype &mag)
-    : pos(pos),
-      alpha(alpha),
-      gamma0(gamma0), 
-      mag(mag),
-      sat_mag(sat_mag)
+                                   const double alpha,
+                                   const double gamma0,
+                                   const double sat_mag,
+                                   const soltype &mag)
+    : pos(pos), alpha(alpha), gamma0(gamma0), mag(mag), sat_mag(sat_mag)
 {
 }
 
@@ -15,10 +13,25 @@ soltype MagneticParticle::llg_rhs(const soltype &mag,
                                   const Eigen::Vector3d &hfield)
 {
   const Eigen::Vector3d mxh = mag.cross(hfield);
-  const double gamma = gamma0 / ( 1 + std::pow(alpha,2));
+  const double gamma = gamma0 / (1 + std::pow(alpha, 2));
 
-  //return -gamma * mxh; 
   return -gamma * mxh - gamma * alpha / sat_mag * mag.cross(mxh);
+}
+
+soltype MagneticParticle::llg_jacobian_matvec(
+    const soltype &mag,
+    const soltype &delta_mag,
+    const Eigen::Vector3d &hfield,
+    const Eigen::Vector3d &delta_field)
+{
+  // Used in the Jacobian Free Newton Krylov solver
+  Eigen::Vector3d precession = mag.cross(delta_field) + delta_mag.cross(hfield);
+  Eigen::Vector3d damping = mag.cross(mag.cross(delta_field)) +
+                            mag.cross(delta_mag.cross(hfield)) +
+                            delta_mag.cross(mag.cross(hfield));
+  const double gamma = gamma0 / (1 + std::pow(alpha, 2));
+
+  return -gamma * precession - gamma * alpha / sat_mag * damping;
 }
 
 const Eigen::Vector3d separation(const MagneticParticle &mp1,

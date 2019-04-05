@@ -3,103 +3,71 @@
 NewtonSolver::NewtonSolver(
     const double dt,
     double max_iter,
-    const std::shared_ptr<Integrator::History<Eigen::Vector3d>> &history,
+    const std::shared_ptr<Integrator::History<vec3d>> &history,
+    const std::shared_ptr<Integrator::History<vec3d>> &delta_history,
     std::vector<std::shared_ptr<Interaction>> interactions,
-    rhs_func_vector &rhs_functions)
-    : Solver(dt, history, interactions, rhs_functions), max_iter(max_iter)
+    std::vector<std::shared_ptr<Interaction>> delta_interactions,
+    rhs_func_vector &rhs_functions,
+    jacobian_matvec_func_vector &jacobian_matvec_funcs)
+    : Solver(dt, history, interactions, rhs_functions),
+      max_iter(max_iter),
+      delta_history(delta_history),
+      delta_interactions(delta_interactions),
+      jacobian_matvec_funcs(jacobian_matvec_funcs)
 {
-}
-
-Eigen::Matrix3d NewtonSolver::approx_jacob(std::function<vec3d(vec3d)> func,
-                                           vec3d f,
-                                           vec3d x,
-                                           double eps)
-{
-  int n = x.size();
-  Eigen::Matrix<double, 3, 3> jacob;
-
-  for(int j = 0; j < n; ++j) {
-    vec3d xh = x;
-    double h = eps * std::abs(xh[j]);
-    if(h == 0.0) h = eps;
-    xh[j] = xh[j] + h;
-
-    vec3d fh = func(xh);
-    for(int i = 0; i < n; ++i) jacob(i, j) = (fh[i] - f[i]) / h;
-  }
-  return jacob;
 }
 
 vec3d newton_rhs(vec3d mag,
                  vec3d mag_past,
                  vec3d field,
                  int sol,
-                 int step,
-                 rhs_func_vector rhs_functions)
+                 int step_size,
+                 rhs_func_vector &rhs_functions)
 {
   // may have issues with not recomputing fields when mag is changed
-  return (mag - mag_past) / step +  -1 * rhs_functions[sol](mag, field); // may need to negate rhs_functions
-}
-
-vec3d test_func(vec3d vec1)
-{
-  return vec3d(std::pow(vec1[0], 2) - 4, std::pow(vec1[1], 2) - 4,
-               std::pow(vec1[2], 2) - 4); // f = x^2 - 4
+  return (mag - mag_past) / step_size -
+         rhs_functions[sol](mag,
+                            field);  // may need to negate rhs_functions
 }
 
 void NewtonSolver::solve_step(int step)
 {
-  //double tol = 1e-8;
-
-  //vec3d solution(2, 2, 2);
-  //vec3d iter_solution = solution + solution * 1e-2;
-
-  //for(int iter = 0; iter < max_iter; ++iter) {
-    //auto newton_func = std::bind(test_func, std::placeholders::_1);
-
-    //vec3d f_iter = newton_func(iter_solution);
-    //auto jacobian = approx_jacob(newton_func, f_iter, iter_solution, tol);
-
-    //vec3d delta_m = -1 * jacobian.partialPivLu().solve(f_iter);
-
-    //if(step == 1)
-      //std::cout << std::endl << "f_iter: " << f_iter.transpose() << std::endl;
-    //if(step == 1) std::cout << "delta: " << delta_m.transpose() << std::endl;
-
-    //iter_solution = iter_solution + delta_m;
-
-    //if(step == 1)
-      //std::cout << "sol: " << iter_solution.transpose() << std::endl;
-  //}
   double tol = 1e-8;
 
+  // Guess solutions (bad guess right now; hold magnitude constant)
   for(int sol = 0; sol < num_solutions; ++sol) {
     history->array[sol][step][0] =
-        history->array[sol][step - 1][0] + Eigen::Vector3d(1, 1, 1) * 1e-12;
+        history->array[sol][step - 1][0] + vec3d(1, 1, 1) * 1e-12;
+    delta_history->array[sol][step][0] =
+        delta_history
+            ->array[sol][step - 1]
+                   [0];  // Make sure setting up delta_history accounts for this
   }
 
   for(int iter = 0; iter < max_iter; ++iter) {
     auto pulse_interactions = interactions[0]->evaluate(step);
     auto history_interactions = interactions[1]->evaluate(step);
     auto self_interactions = interactions[2]->evaluate(step);
+    auto delta_history_interactions = delta_interactions[1]->evaluate(step);
+    auto delta_self_interactions = delta_interactions[2]->evaluate(step);
 
     for(int sol = 0; sol < num_solutions; ++sol) {
-      auto newton_func = std::bind(
-          newton_rhs, std::placeholders::_1, history->array[sol][step - 1][0],
-          pulse_interactions[sol] + history_interactions[sol] +
-              self_interactions[sol],
-          //sol, dt, rhs_functions);
-          sol, step, rhs_functions);
+      vec3d mag_fields = pulse_interactions[sol] + history_interactions[sol] +
+                         self_interactions[sol];
+      vec3d delta_fields =
+          delta_history_interactions[sol] + delta_self_interactions[sol];
+      vec3d jacobian_matvec = jacobian_matvec_funcs[sol](
+          history->array[sol][step][0], delta_history->array[sol][step][0],
+          mag_fields, delta_fields);
 
-      vec3d f_iter = newton_func(history->array[sol][step][0]);
-      auto jacobian =
-          approx_jacob(newton_func, f_iter, history->array[sol][step][0], tol);
+      vec3d newton_func = newton_rhs(history->array[sol][step][0],
+                                     history->array[sol][step - 1][0],
+                                     mag_fields, sol, dt, rhs_functions);
 
-      vec3d delta_m = -1 * jacobian.partialPivLu().solve(f_iter);
+      delta_history->array[sol][step][0] = dt * jacobian_matvec + newton_func;
 
-      if(step==40) std::cout << f_iter.transpose() << std::endl;
-
-      history->array[sol][step][0] = history->array[sol][step][0] + delta_m;
+      history->array[sol][step][0] =
+          history->array[sol][step][0] + delta_history->array[sol][step][0];
     }
   }
 }

@@ -4,8 +4,6 @@
 #include <string>
 #include "gmres.h"
 
-#include <iomanip>
-
 Integrator::LLG_RHS::LLG_RHS(
     const double dt,
     const std::shared_ptr<Integrator::History<soltype>> &history,
@@ -23,6 +21,8 @@ void Integrator::LLG_RHS::evaluate(const int step) const
   auto pulse_interactions = interactions[0]->evaluate(step);
   auto history_interactions = interactions[1]->evaluate(step);
   auto self_interactions = interactions[2]->evaluate(step);
+
+  std::cout << history_interactions[0].transpose() << std::endl;
 
   for(int p_idx = 0; p_idx < num_particles; ++p_idx) {
     history->array[p_idx][step][1] =

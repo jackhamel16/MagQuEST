@@ -3,19 +3,24 @@
 
 #include "solver.h"
 
+// Delta refers to difference between M at iteration l and l+1
+
 typedef Eigen::Vector3d vec3d;
 
 class NewtonSolver : public Solver {
  public:
   NewtonSolver(const double, double, 
-               const std::shared_ptr<Integrator::History<Eigen::Vector3d>> &,
+               const std::shared_ptr<Integrator::History<vec3d>> &,
+               const std::shared_ptr<Integrator::History<vec3d>> &,
                const std::vector<std::shared_ptr<Interaction>>,
-               rhs_func_vector &);
+               const std::vector<std::shared_ptr<Interaction>>,
+               rhs_func_vector &, jacobian_matvec_func_vector &);
   virtual void solve_step(int);
-  Eigen::Matrix3d approx_jacob(
-      std::function<vec3d(vec3d)>, vec3d, vec3d, double);
  private:
   double max_iter;
+  const std::shared_ptr<Integrator::History<vec3d>> delta_history;
+  const std::vector<std::shared_ptr<Interaction>> delta_interactions;
+  jacobian_matvec_func_vector jacobian_matvec_funcs;
 };
 
 #endif

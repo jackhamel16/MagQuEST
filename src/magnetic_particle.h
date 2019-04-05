@@ -18,14 +18,26 @@ typedef std::vector<MagneticParticle> DotVector;
 typedef std::vector<
     std::function<soltype(const soltype &, const Eigen::Vector3d &)>>
     rhs_func_vector;
+typedef std::vector<std::function<soltype(const soltype &,
+                                          const soltype &,
+                                          const Eigen::Vector3d &,
+                                          const Eigen::Vector3d)>>
+    jacobian_matvec_func_vector;
 
 class MagneticParticle {
  public:
   MagneticParticle() = default;
-  MagneticParticle(const Eigen::Vector3d &, const double, const double,
-                   const double, const soltype &);
+  MagneticParticle(const Eigen::Vector3d &,
+                   const double,
+                   const double,
+                   const double,
+                   const soltype &);
 
   soltype llg_rhs(const soltype &, const Eigen::Vector3d &);
+  soltype llg_jacobian_matvec(const soltype &,
+                              const soltype &,
+                              const Eigen::Vector3d &,
+                              const Eigen::Vector3d &);
 
   const Eigen::Vector3d &position() const { return pos; }
   const soltype &magnetization() const { return mag; }

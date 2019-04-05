@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
       dc_field += (*pulses)[p].get_dc_field();
     }
     //const double dt = (*pulses)[0].compute_dt();
-    const double dt = .5e-13;
+    const double dt = 2.5e-13;
     const double num_timesteps =
         static_cast<int>(std::ceil(config.total_time / dt));
     std::cout << dt <<std::endl;
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     const double chi = 1;
     auto history = std::make_shared<Integrator::History<soltype>>(
         config.num_particles, 22, num_timesteps);
-    history->fill(soltype(1, 0, 0));
+    history->fill(soltype(1e6, 0, 0));
     // history->initialize_past(qds);
 
     // Set up Interactions
