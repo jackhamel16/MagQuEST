@@ -38,21 +38,24 @@ int main(int argc, char *argv[])
       (*pulses)[p].compute_parameters(config.c0);
       dc_field += (*pulses)[p].get_dc_field();
     }
-    //const double dt = (*pulses)[0].compute_dt();
-    const double dt = 2.5e-13;
+    // const double dt = (*pulses)[0].compute_dt();
+    const double dt = 5e-13;
     const double num_timesteps =
         static_cast<int>(std::ceil(config.total_time / dt));
-    std::cout << dt <<std::endl;
-    std::cout << num_timesteps <<std::endl;
+    std::cout << dt << std::endl;
+    std::cout << num_timesteps << std::endl;
     // Set up History
-    const double chi = 1;
-    auto history = std::make_shared<Integrator::History<soltype>>(
+    const auto history = std::make_shared<Integrator::History<soltype>>(
         config.num_particles, 22, num_timesteps);
     history->fill(soltype(1e6, 0, 0));
-    // history->initialize_past(qds);
+    const auto delta_history = std::make_shared<Integrator::History<soltype>>(
+        config.num_particles, 0, num_timesteps);
+    delta_history->fill(soltype(1, 0, 0));
 
     // Set up Interactions
     auto dyadic =
+        make_shared<Propagation::FixedFramePropagator>(config.c0, config.e0);
+    auto dyadic2 =
         make_shared<Propagation::FixedFramePropagator>(config.c0, config.e0);
 
     std::vector<std::shared_ptr<Interaction>> interactions{
@@ -60,16 +63,27 @@ int main(int argc, char *argv[])
         make_shared<HistoryInteraction>(
             qds, history, dyadic, config.interpolation_order, dt, config.c0),
         make_shared<SelfInteraction>(qds, history)};
+    std::cout << interactions.size() << std::endl;
+    std::vector<std::shared_ptr<Interaction>> delta_interactions{
+        make_shared<HistoryInteraction>(qds, delta_history, dyadic2,
+                                        config.interpolation_order, dt,
+                                        config.c0),
+        make_shared<SelfInteraction>(qds, delta_history)};
 
     rhs_func_vector rhs_funcs = rhs_functions(*qds);
+    jacobian_matvec_func_vector jacobian_matvec_funcs =
+        make_jacobian_matvec_funcs(*qds);
     std::unique_ptr<Integrator::RHS<soltype>> llg_rhs =
-        std::make_unique<Integrator::LLG_RHS>(dt, history, std::move(interactions), std::move(rhs_funcs));
+        std::make_unique<Integrator::LLG_RHS>(
+            dt, history, std::move(interactions), std::move(rhs_funcs));
 
-    //Integrator::PredictorCorrector<soltype> solver(
-        //dt, 18, 22, 3.15, history, llg_rhs);   
-    EulerIntegrator solver(dt, history, llg_rhs);
+    int newton_iterations = 8;  // Figure out best way to set these
+    auto solver = NewtonSolver(dt, newton_iterations, history, delta_history,
+                        std::move(interactions), std::move(delta_interactions), rhs_funcs,
+                        jacobian_matvec_funcs);
+
+    std::cout << interactions.size() << std::endl;
     solver.solve();
-    // EulerIntegrator integrator(dt, history,
 
     cout << "Writing output..." << endl;
     ofstream outfile("output.dat");
@@ -79,7 +93,7 @@ int main(int argc, char *argv[])
     for(int t = 0; t < num_timesteps; ++t) {
       for(int n = 0; n < config.num_particles; ++n) {
         outfile << history->array[n][t][0].transpose() << " ";
-        pulsefile << (*pulses)[0](soltype(0,0,0), dt * t).transpose() << " ";
+        pulsefile << (*pulses)[0](soltype(0, 0, 0), dt * t).transpose() << " ";
         // pulsefile << (*pulses)[0](Eigen::Vector3d(0, 0, 0), t *
         // dt).transpose()
         //<< " ";

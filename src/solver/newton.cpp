@@ -2,7 +2,7 @@
 
 NewtonSolver::NewtonSolver(
     const double dt,
-    double max_iter,
+    int max_iter,
     const std::shared_ptr<Integrator::History<vec3d>> &history,
     const std::shared_ptr<Integrator::History<vec3d>> &delta_history,
     std::vector<std::shared_ptr<Interaction>> interactions,
@@ -33,7 +33,6 @@ vec3d newton_rhs(vec3d mag,
 void NewtonSolver::solve_step(int step)
 {
   double tol = 1e-8;
-
   // Guess solutions (bad guess right now; hold magnitude constant)
   for(int sol = 0; sol < num_solutions; ++sol) {
     history->array[sol][step][0] =
@@ -45,11 +44,17 @@ void NewtonSolver::solve_step(int step)
   }
 
   for(int iter = 0; iter < max_iter; ++iter) {
+  std::cout <<"test 2\n";
     auto pulse_interactions = interactions[0]->evaluate(step);
+  std::cout <<"test 2\n";
     auto history_interactions = interactions[1]->evaluate(step);
+  std::cout <<"test 2\n";
     auto self_interactions = interactions[2]->evaluate(step);
-    auto delta_history_interactions = delta_interactions[1]->evaluate(step);
-    auto delta_self_interactions = delta_interactions[2]->evaluate(step);
+  std::cout <<"test 2\n";
+    auto delta_history_interactions = delta_interactions[0]->evaluate(step);
+  std::cout <<"test 2\n";
+    auto delta_self_interactions = delta_interactions[1]->evaluate(step);
+  std::cout <<"test 2\n";
 
     for(int sol = 0; sol < num_solutions; ++sol) {
       vec3d mag_fields = pulse_interactions[sol] + history_interactions[sol] +

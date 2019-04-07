@@ -53,6 +53,21 @@ rhs_func_vector rhs_functions(const DotVector &dots)
   return funcs;
 }
 
+jacobian_matvec_func_vector make_jacobian_matvec_funcs(const DotVector &dots)
+{
+  jacobian_matvec_func_vector funcs(dots.size());
+
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+  using std::placeholders::_3;
+  using std::placeholders::_4;
+  std::transform(dots.begin(), dots.end(), funcs.begin(),
+                 [](const MagneticParticle &mp) {
+                   return std::bind(&MagneticParticle::llg_jacobian_matvec, mp, _1, _2, _3, _4);
+                 });
+  return funcs;
+}
+
 std::ostream &operator<<(std::ostream &os, const MagneticParticle &mp)
 {
   os << mp.pos.transpose() << " " << mp.alpha << " " << mp.gamma0 << " "
