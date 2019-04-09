@@ -26,4 +26,9 @@ class NewtonSolver : public Solver {
   jacobian_matvec_func_vector jacobian_matvec_funcs;
 };
 
+std::vector<vec3d> JFNK_solve(int,
+                              int,
+                              std::vector<vec3d>,
+                              std::vector<vec3d>);
+
 #endif

@@ -47,9 +47,9 @@ int main(int argc, char *argv[])
     // Set up History
     const auto history = std::make_shared<Integrator::History<soltype>>(
         config.num_particles, 22, num_timesteps);
-    history->fill(soltype(1e6, 0, 0));
     const auto delta_history = std::make_shared<Integrator::History<soltype>>(
         config.num_particles, 0, num_timesteps);
+    history->fill(soltype(1e6, 0, 0));
     delta_history->fill(soltype(1, 0, 0));
 
     // Set up Interactions
@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
         make_shared<HistoryInteraction>(
             qds, history, dyadic, config.interpolation_order, dt, config.c0),
         make_shared<SelfInteraction>(qds, history)};
-    std::cout << interactions.size() << std::endl;
     std::vector<std::shared_ptr<Interaction>> delta_interactions{
         make_shared<HistoryInteraction>(qds, delta_history, dyadic2,
                                         config.interpolation_order, dt,
@@ -73,16 +72,12 @@ int main(int argc, char *argv[])
     rhs_func_vector rhs_funcs = rhs_functions(*qds);
     jacobian_matvec_func_vector jacobian_matvec_funcs =
         make_jacobian_matvec_funcs(*qds);
-    std::unique_ptr<Integrator::RHS<soltype>> llg_rhs =
-        std::make_unique<Integrator::LLG_RHS>(
-            dt, history, std::move(interactions), std::move(rhs_funcs));
 
     int newton_iterations = 8;  // Figure out best way to set these
     auto solver = NewtonSolver(dt, newton_iterations, history, delta_history,
                         std::move(interactions), std::move(delta_interactions), rhs_funcs,
                         jacobian_matvec_funcs);
 
-    std::cout << interactions.size() << std::endl;
     solver.solve();
 
     cout << "Writing output..." << endl;
