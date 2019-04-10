@@ -31,7 +31,7 @@ vec3d newton_rhs(vec3d mag,
 }
 
 std::vector<vec3d> JFNK_solve(int num_solutions,
-                              int step_size,
+                              const double step_size,
                               std::vector<vec3d> jacobian_matvec_vec,
                               std::vector<vec3d> newton_func_vec)
 {

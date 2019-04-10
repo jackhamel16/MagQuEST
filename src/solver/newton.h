@@ -27,7 +27,7 @@ class NewtonSolver : public Solver {
 };
 
 std::vector<vec3d> JFNK_solve(int,
-                              int,
+                              double,
                               std::vector<vec3d>,
                               std::vector<vec3d>);
 
