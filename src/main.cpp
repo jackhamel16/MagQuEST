@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
       dc_field += (*pulses)[p].get_dc_field();
     }
     // const double dt = (*pulses)[0].compute_dt();
-    const double dt = 5e-13;
+    const double dt = 1e-17;
     const double num_timesteps =
         static_cast<int>(std::ceil(config.total_time / dt));
     std::cout << dt << std::endl;
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     jacobian_matvec_func_vector jacobian_matvec_funcs =
         make_jacobian_matvec_funcs(*qds);
 
-    int newton_iterations = 8;  // Figure out best way to set these
+    int newton_iterations = 4;  // Figure out best way to set these
     auto solver = NewtonSolver(dt, newton_iterations, history, delta_history,
                         std::move(interactions), std::move(delta_interactions), rhs_funcs,
                         jacobian_matvec_funcs);
@@ -87,12 +87,14 @@ int main(int argc, char *argv[])
     pulsefile << scientific << setprecision(15);
     for(int t = 0; t < num_timesteps; ++t) {
       for(int n = 0; n < config.num_particles; ++n) {
+        //std::cout << history->array[n][t][0].norm() << " ";
         outfile << history->array[n][t][0].transpose() << " ";
         pulsefile << (*pulses)[0](soltype(0, 0, 0), dt * t).transpose() << " ";
         // pulsefile << (*pulses)[0](Eigen::Vector3d(0, 0, 0), t *
         // dt).transpose()
         //<< " ";
       }
+      //std::cout <<"\n";
       outfile << "\n";
       pulsefile << "\n";
     }
