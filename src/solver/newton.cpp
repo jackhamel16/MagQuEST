@@ -59,6 +59,14 @@ void NewtonSolver::solve_step(int step)
     auto delta_history_interactions = delta_interactions[0]->evaluate(step);
     auto delta_self_interactions = delta_interactions[1]->evaluate(step);
 
+    if(step==1) std::cout << "interaction normalized = " << 
+      history_interactions[0].transpose() << 
+      //(history_interactions[0]/history_interactions[0].norm()).transpose() << 
+      "\nmag0 normalized = " << 
+      (history->array[0][step][0]/history->array[0][step][0].norm()).transpose() << 
+      "\nmag1 normalized = " << 
+      (history->array[1][step][0]/history->array[1][step][0].norm()).transpose() << "\n";
+
     for(int sol = 0; sol < num_solutions; ++sol) {
       vec3d mag_fields = pulse_interactions[sol] + history_interactions[sol] +
                          self_interactions[sol];
@@ -73,7 +81,7 @@ void NewtonSolver::solve_step(int step)
       if(step==1) {
         std::cout << "iteration = " << iter << 
           "\node = " << rhs_functions[sol](history->array[sol][step][0], mag_fields).transpose()
-          << "\ndelta field = " << delta_fields.transpose() <<
+          << "\nmagnetization field = " << mag_fields.transpose() <<
           "\ndelta before = " << delta_history->array[sol][step][0].transpose() <<
           "\njmv = "<< jacobian_matvec_vec[sol].transpose() << "\nresidual = " <<
           residual_vec[sol].transpose() << "\n\n";

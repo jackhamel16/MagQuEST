@@ -33,7 +33,7 @@ void HistoryInteraction::build_coefficient_table()
 
     Vec3d dr(separation((*dots)[src], (*dots)[obs]));
 
-    std::pair<int, double> delay(split_double(dr.norm() / (c0 * dt)));
+    std::pair<int, double> delay(split_double(0.0));
 
     floor_delays[pair_idx] = delay.first;
     lagrange.calculate_weights(delay.second, dt);

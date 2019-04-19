@@ -47,10 +47,8 @@ class Propagation::FixedFramePropagator
     std::array<Eigen::Matrix3d, 3> dyads(spatial_dyads(dr));
 
     for(int i = 0; i <= interp.order(); ++i) {
-      for(int term = 0; term < 3; ++term) {
-        coefs[i] +=
-            -1 / (4 * M_PI) * dyads[term] * interp.evaluations[term][i];
-      }
+      coefs[i] =
+          -1 / (4 * M_PI) * dyads[0] * interp.evaluations[0][i];
     }
     //Eigen::Matrix3d x;
     //x.setZero();
