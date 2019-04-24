@@ -2,6 +2,7 @@
 #define NEWTON_SOLVER
 
 #include "solver.h"
+#include "gmres.h"
 
 // Delta refers to difference between M at iteration l and l+1
 
@@ -23,9 +24,10 @@ class NewtonSolver : public Solver {
   int max_iter;
   const std::shared_ptr<Integrator::History<vec3d>> delta_history;
   const std::vector<std::shared_ptr<Interaction>> delta_interactions;
-  jacobian_matvec_func_vector jacobian_matvec_funcs;
+  jacobian_matvec_func_vector matvec_funcs;
 };
 
+//matvec_func_vector create_matvec_funcs();
 std::vector<vec3d> JFNK_solve(int,
                               double,
                               std::vector<vec3d>,

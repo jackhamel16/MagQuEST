@@ -71,6 +71,7 @@ int main(int argc, char *argv[])
         make_shared<SelfInteraction>(qds, delta_history)};
 
     rhs_func_vector rhs_funcs = rhs_functions(*qds);
+    // try passing particles to solver
     jacobian_matvec_func_vector jacobian_matvec_funcs =
         make_jacobian_matvec_funcs(*qds);
 
@@ -88,14 +89,14 @@ int main(int argc, char *argv[])
     pulsefile << scientific << setprecision(15);
     for(int t = 0; t < num_timesteps; ++t) {
       for(int n = 0; n < config.num_particles; ++n) {
-        std::cout << history->array[n][t][0].norm() << " ";
+        //std::cout << history->array[n][t][0].norm() << " ";
         outfile << history->array[n][t][0].transpose() << " ";
         pulsefile << (*pulses)[0](soltype(0, 0, 0), dt * t).transpose() << " ";
         // pulsefile << (*pulses)[0](Eigen::Vector3d(0, 0, 0), t *
         // dt).transpose()
         //<< " ";
       }
-      std::cout <<"\n";
+      //std::cout <<"\n";
       outfile << "\n";
       pulsefile << "\n";
     }

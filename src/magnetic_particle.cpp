@@ -20,6 +20,8 @@ soltype MagneticParticle::llg_rhs(const soltype &mag,
 }
 
 soltype MagneticParticle::llg_jacobian_matvec(
+    // bind parameters and use as Ax in GMRES to sovler Ax=b
+    const double dt,
     const soltype &mag,
     const soltype &delta_mag,
     const Eigen::Vector3d &hfield,
@@ -32,7 +34,8 @@ soltype MagneticParticle::llg_jacobian_matvec(
                             delta_mag.cross(mag.cross(hfield));
   const double gamma = gamma0 / (1 + std::pow(alpha, 2));
 
-  return -gamma * precession - gamma * alpha / sat_mag * damping;
+  Eigen::Vector3d jacobian_matvec =  -gamma * precession - gamma * alpha / sat_mag * damping;
+  return delta_mag - dt * jacobian_matvec;
   //return -gamma * precession;
 }
 
@@ -63,9 +66,10 @@ jacobian_matvec_func_vector make_jacobian_matvec_funcs(const DotVector &dots)
   using std::placeholders::_2;
   using std::placeholders::_3;
   using std::placeholders::_4;
+  using std::placeholders::_5;
   std::transform(dots.begin(), dots.end(), funcs.begin(),
                  [](const MagneticParticle &mp) {
-                   return std::bind(&MagneticParticle::llg_jacobian_matvec, mp, _1, _2, _3, _4);
+                   return std::bind(&MagneticParticle::llg_jacobian_matvec, mp, _1, _2, _3, _4, _5);
                  });
   return funcs;
 }

@@ -18,7 +18,8 @@ typedef std::vector<MagneticParticle> DotVector;
 typedef std::vector<
     std::function<soltype(const soltype &, const Eigen::Vector3d &)>>
     rhs_func_vector;
-typedef std::vector<std::function<soltype(const soltype &,
+typedef std::vector<std::function<soltype(const double,
+                                          const soltype &,
                                           const soltype &,
                                           const Eigen::Vector3d &,
                                           const Eigen::Vector3d)>>
@@ -34,7 +35,8 @@ class MagneticParticle {
                    const soltype &);
 
   soltype llg_rhs(const soltype &, const Eigen::Vector3d &);
-  soltype llg_jacobian_matvec(const soltype &,
+  soltype llg_jacobian_matvec(const double,
+                              const soltype &,
                               const soltype &,
                               const Eigen::Vector3d &,
                               const Eigen::Vector3d &);
