@@ -4,6 +4,9 @@ project(QuEST VERSION 0.1 LANGUAGES CXX)
 # Location of custom detection scripts
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 
+# for debugging un comment
+set(CMAKE_BUILD_TYPE Debug)
+
 # Set RELEASE as default build type
 if (NOT CMAKE_BUILD_TYPE)
   set (CMAKE_BUILD_TYPE RELEASE CACHE STRING

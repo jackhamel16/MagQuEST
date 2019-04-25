@@ -2,6 +2,7 @@
 #define GMRES_H
 
 #include <math.h>
+#include <iostream>
 #include <Eigen/Dense>
 #include <vector>
 
