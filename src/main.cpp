@@ -82,6 +82,18 @@ int main(int argc, char *argv[])
 
     solver.solve();
 
+    //TEST AREA FOR JACOBIAN
+    //vec3d test_v(0.002,-0.005,0.001);
+    //vec3d test_h(1.0, 3.0, 0);
+    //vec3d test_m(4.2, 0, 0);
+    //double test_dt = 0.01;
+    //double gamma = 2.21e5;
+    //vec3d implicit_result = (*qds)[0].llg_jacobian_matvec(dt,test_m,test_v,test_h,vec3d(0,0,0));
+    //vec3d explicit_result = test_v - test_dt * compute_llg_jacobian(gamma, test_m, test_h) * test_v;
+    //std::cout << "Implicit = " << implicit_result.transpose() <<
+      //"\nExplicit = " << explicit_result.transpose() << std::endl;
+
+
     cout << "Writing output..." << endl;
     ofstream outfile("output.dat");
     ofstream pulsefile("pulseout.dat");

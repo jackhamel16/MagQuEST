@@ -27,6 +27,22 @@ vec3d residual_rhs(vec3d mag,
   return mag_past - mag + step_size * rhs_functions[sol](mag, field);
 }
 
+Eigen::Matrix3d compute_llg_jacobian(double gamma, vec3d M, vec3d H)
+{
+  Eigen::Matrix3d jacobian;
+  jacobian(0, 0) = -gamma * (M[2] * H[2] + M[1] * H[1]);
+  jacobian(0, 1) = -gamma * H[2] + gamma * 2 * M[1] * H[0];
+  jacobian(0, 2) = gamma * H[1] + gamma * 2 * M[2] * H[0];
+  jacobian(1, 0) = gamma * H[2] + gamma * 2 * M[0] * H[1];
+  jacobian(1, 1) = -gamma * (M[2] * H[2] + M[0] * H[0]);
+  jacobian(1, 2) = -gamma * H[0] + gamma * 2 * M[2] * H[1];
+  jacobian(2, 0) = -gamma * H[1] + gamma * 2 * M[0] * H[2];
+  jacobian(2, 1) = gamma * H[0] + gamma * 2 * M[1] * H[2];
+  jacobian(2, 2) = -gamma * (M[1] * H[1] + M[0] * H[0]);
+
+  return jacobian;
+}
+
 std::vector<vec3d> JFNK_solve(int num_solutions,
                               const double step_size,
                               std::vector<vec3d> jacobian_matvec_vec,
@@ -57,6 +73,7 @@ void NewtonSolver::solve_step(int step)
         history->array[sol][step][0] - history->array[sol][step - 1][0];
   }
 
+  vec3d mag_fields;
   for(int iter = 0; iter < max_iter; ++iter) {
     auto pulse_interactions = interactions[0]->evaluate(step);
     auto history_interactions = interactions[1]->evaluate(step);
@@ -65,20 +82,40 @@ void NewtonSolver::solve_step(int step)
     auto delta_self_interactions = delta_interactions[1]->evaluate(step);
 
     for(int sol = 0; sol < num_solutions; ++sol) {
-      vec3d mag_fields = pulse_interactions[sol] + history_interactions[sol] +
-                         self_interactions[sol];
-      vec3d delta_fields =
-          delta_history_interactions[sol] + delta_self_interactions[sol];
+      // mag_fields = pulse_interactions[sol] + history_interactions[sol] +
+      // self_interactions[sol];
+      mag_fields = pulse_interactions[sol];
+      // vec3d delta_fields =
+      // delta_history_interactions[sol] + delta_self_interactions[sol];
+      vec3d delta_fields = vec3d(0, 0, 0);
       matvec = std::bind(matvec_funcs[sol], dt, history->array[sol][step][0],
                          std::placeholders::_1, mag_fields, delta_fields);
+
       rhs = residual_rhs(history->array[sol][step][0],
                          history->array[sol][step - 1][0], mag_fields, sol, dt,
                          rhs_functions);
-      int gmres_out = GMRES(matvec, delta_history->array[sol][step][0],
-                            rhs, H, m, gmres_iters, gmres_tol);
-      if(gmres_out == 1) std::cout << "Iteration = " << iter << " GMRES COULD NOT CONVERGE\n";
+      int gmres_out = GMRES(matvec, delta_history->array[sol][step][0], rhs, H,
+                            m, gmres_iters, gmres_tol);
+      //      if(gmres_out == 1)
+      //        std::cout << "Iteration = " << iter << " GMRES COULD NOT
+      //        CONVERGE\n";
       history->array[sol][step][0] =
           history->array[sol][step][0] + delta_history->array[sol][step][0];
     }
+  }
+  // Test explicit jacobian here
+  if(step % 100 == 0) {
+    vec3d implicit_matvec = matvec(delta_history->array[0][step][0]);
+    vec3d explicit_matvec =
+        delta_history->array[0][step][0] -
+        dt *
+            compute_llg_jacobian(2.21e5, history->array[0][step][0],
+                                 mag_fields) *
+            delta_history->array[0][step][0];
+    double error =
+        (implicit_matvec - explicit_matvec).norm() / explicit_matvec.norm();
+    std::cout << "Implicit = " << implicit_matvec.transpose()
+              << "\nExplicit = " << explicit_matvec.transpose()
+              << "\nError = " << error << "\n\n";
   }
 }

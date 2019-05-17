@@ -28,6 +28,7 @@ class NewtonSolver : public Solver {
 };
 
 //matvec_func_vector create_matvec_funcs();
+Eigen::Matrix3d compute_llg_jacobian(double, vec3d, vec3d);
 std::vector<vec3d> JFNK_solve(int,
                               double,
                               std::vector<vec3d>,
