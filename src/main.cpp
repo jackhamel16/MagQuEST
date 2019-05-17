@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
         config.num_particles, 22, num_timesteps);
     const auto delta_history = std::make_shared<Integrator::History<soltype>>(
         config.num_particles, 0, num_timesteps);
-    history->fill(soltype(1e6, 0, 0));
+    history->fill(soltype(1.7e6, 0, 0));
     delta_history->fill(soltype(1, 0, 0));
 
     // Set up Interactions
@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
     outfile << scientific << setprecision(15);
     pulsefile << scientific << setprecision(15);
     for(int t = 0; t < num_timesteps; ++t) {
+    //for(int t = 0; t < num_timesteps; t=t+50) {
       for(int n = 0; n < config.num_particles; ++n) {
         //std::cout << history->array[n][t][0].norm() << " ";
         outfile << history->array[n][t][0].transpose() << " ";
