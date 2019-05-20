@@ -64,7 +64,7 @@ void NewtonSolver::solve_step(int step)
   Eigen::Matrix<double, 3, 3> H;
   int m = 1;  // num of restarts
   int gmres_iters = 1000;
-  double gmres_tol = 1e-4;
+  double gmres_tol = 1e-6;
 
   std::function<soltype(soltype)> matvec;
   vec3d rhs;
@@ -99,9 +99,8 @@ void NewtonSolver::solve_step(int step)
                          rhs_functions);
       int gmres_out = GMRES(matvec, delta_history->array[sol][step][0], rhs, H,
                             m, gmres_iters, gmres_tol);
-      //      if(gmres_out == 1)
-      //        std::cout << "Iteration = " << iter << " GMRES COULD NOT
-      //        CONVERGE\n";
+      if(gmres_out == 1)
+        std::cout << "Iteration = " << iter << " GMRES COULD NOT CONVERGE\n ";
       history->array[sol][step][0] =
           history->array[sol][step][0] + delta_history->array[sol][step][0];
     }
@@ -110,13 +109,15 @@ void NewtonSolver::solve_step(int step)
   if(step % 100 == 0) {
     auto jacobian =
         compute_llg_jacobian(2.21e5, history->array[0][step][0], mag_fields);
-    vec3d implicit_matvec = (delta_history->array[0][step][0] - matvec(delta_history->array[0][step][0])) / dt;
+    vec3d implicit_matvec = (delta_history->array[0][step][0] -
+                             matvec(delta_history->array[0][step][0])) /
+                            dt;
     vec3d explicit_matvec = jacobian * delta_history->array[0][step][0];
     double error =
         (implicit_matvec - explicit_matvec).norm() / explicit_matvec.norm();
-    //std::cout << jacobian << std::endl << std::endl;
-    std::cout << "Implicit = " << implicit_matvec.transpose()
-              << "\nExplicit = " << explicit_matvec.transpose()
-              << "\nError = " << error << "\n\n";
+    // std::cout << jacobian << std::endl << std::endl;
+    // std::cout << "Implicit = " << implicit_matvec.transpose()
+    //<< "\nExplicit = " << explicit_matvec.transpose()
+    //<< "\nError = " << error << "\n\n";
   }
 }
