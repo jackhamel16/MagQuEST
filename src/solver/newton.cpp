@@ -31,13 +31,16 @@ Eigen::Matrix3d compute_llg_jacobian(double gamma, vec3d M, vec3d H)
 {
   Eigen::Matrix3d jacobian;
   jacobian(0, 0) = -gamma * (M[2] * H[2] + M[1] * H[1]);
-  jacobian(0, 1) = -gamma * H[2] + gamma * 2 * M[1] * H[0];
-  jacobian(0, 2) = gamma * H[1] + gamma * 2 * M[2] * H[0];
-  jacobian(1, 0) = gamma * H[2] + gamma * 2 * M[0] * H[1];
+  jacobian(0, 1) =
+      -gamma * H[2] + gamma * 2 * M[1] * H[0] - gamma * M[0] * H[1];
+  jacobian(0, 2) = gamma * H[1] + gamma * 2 * M[2] * H[0] - gamma * M[0] * H[2];
+  jacobian(1, 0) = gamma * H[2] + gamma * 2 * M[0] * H[1] - gamma * M[1] * H[0];
   jacobian(1, 1) = -gamma * (M[2] * H[2] + M[0] * H[0]);
-  jacobian(1, 2) = -gamma * H[0] + gamma * 2 * M[2] * H[1];
-  jacobian(2, 0) = -gamma * H[1] + gamma * 2 * M[0] * H[2];
-  jacobian(2, 1) = gamma * H[0] + gamma * 2 * M[1] * H[2];
+  jacobian(1, 2) =
+      -gamma * H[0] + gamma * 2 * M[2] * H[1] - gamma * M[1] * H[2];
+  jacobian(2, 0) =
+      -gamma * H[1] + gamma * 2 * M[0] * H[2] - gamma * M[2] * H[0];
+  jacobian(2, 1) = gamma * H[0] + gamma * 2 * M[1] * H[2] - gamma * M[2] * H[1];
   jacobian(2, 2) = -gamma * (M[1] * H[1] + M[0] * H[0]);
 
   return jacobian;
@@ -105,15 +108,13 @@ void NewtonSolver::solve_step(int step)
   }
   // Test explicit jacobian here
   if(step % 100 == 0) {
-    vec3d implicit_matvec = matvec(delta_history->array[0][step][0]);
-    vec3d explicit_matvec =
-        delta_history->array[0][step][0] -
-        dt *
-            compute_llg_jacobian(2.21e5, history->array[0][step][0],
-                                 mag_fields) *
-            delta_history->array[0][step][0];
+    auto jacobian =
+        compute_llg_jacobian(2.21e5, history->array[0][step][0], mag_fields);
+    vec3d implicit_matvec = (delta_history->array[0][step][0] - matvec(delta_history->array[0][step][0])) / dt;
+    vec3d explicit_matvec = jacobian * delta_history->array[0][step][0];
     double error =
         (implicit_matvec - explicit_matvec).norm() / explicit_matvec.norm();
+    //std::cout << jacobian << std::endl << std::endl;
     std::cout << "Implicit = " << implicit_matvec.transpose()
               << "\nExplicit = " << explicit_matvec.transpose()
               << "\nError = " << error << "\n\n";

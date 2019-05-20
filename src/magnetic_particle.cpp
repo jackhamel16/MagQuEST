@@ -24,19 +24,25 @@ soltype MagneticParticle::llg_jacobian_matvec(
     const double dt,
     const soltype &mag,
     const soltype &delta_mag,
-    const Eigen::Vector3d &hfield,
+    const Eigen::Vector3d &H,
     const Eigen::Vector3d &delta_field)
 {
-  // Used in the Jacobian Free Newton Krylov solver
-  Eigen::Vector3d precession = mag.cross(delta_field) + delta_mag.cross(hfield);
-  Eigen::Vector3d damping = mag.cross(mag.cross(delta_field)) +
-                            mag.cross(delta_mag.cross(hfield)) +
-                            delta_mag.cross(mag.cross(hfield));
   const double gamma = gamma0 / (1 + std::pow(alpha, 2));
+  Eigen::Matrix3d jacobian; 
+  jacobian(0, 0) = -gamma * (mag[2] * H[2] + mag[1] * H[1]);
+  jacobian(0, 1) =
+      -gamma * H[2] + gamma * 2 * mag[1] * H[0] - gamma * mag[0] * H[1];
+  jacobian(0, 2) = gamma * H[1] + gamma * 2 * mag[2] * H[0] - gamma * mag[0] * H[2];
+  jacobian(1, 0) = gamma * H[2] + gamma * 2 * mag[0] * H[1] - gamma * mag[1] * H[0];
+  jacobian(1, 1) = -gamma * (mag[2] * H[2] + mag[0] * H[0]);
+  jacobian(1, 2) =
+      -gamma * H[0] + gamma * 2 * mag[2] * H[1] - gamma * mag[1] * H[2];
+  jacobian(2, 0) =
+      -gamma * H[1] + gamma * 2 * mag[0] * H[2] - gamma * mag[2] * H[0];
+  jacobian(2, 1) = gamma * H[0] + gamma * 2 * mag[1] * H[2] - gamma * mag[2] * H[1];
+  jacobian(2, 2) = -gamma * (mag[1] * H[1] + mag[0] * H[0]);
 
-  Eigen::Vector3d jacobian_matvec =  -gamma * precession - gamma * alpha / sat_mag * damping;
-  return delta_mag - dt * jacobian_matvec;
-  //return -gamma * precession;
+  return delta_mag - dt * jacobian * delta_mag;
 }
 
 const Eigen::Vector3d separation(const MagneticParticle &mp1,
