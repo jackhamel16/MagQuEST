@@ -1,9 +1,10 @@
 [![DOI](https://zenodo.org/badge/37320094.svg)](https://zenodo.org/badge/latestdoi/37320094)
 
-# Quantum Electromagnetics Simulation Toolbox (QuEST)
+# Magnetic Quantum Electromagnetics Simulation Toolbox (MagQuEST)
 
-Simulation software to model the evolution & electromagnetic interactions of
-two-level quantum dots. Designed and built at Michigan State University.
+Based on simulation software to model the evolution & electromagnetic interactions of
+two-level quantum dots. MagQuEST simulates the evolution & electromagnetic interactions of
+magnetic nanoparticles.  Designed and built at Michigan State University.
 
 ## Prerequisites
 
@@ -51,24 +52,24 @@ parameter options.
 following format:
 
 ```
-x y z omega_0 T1 T2 dx dy dz
-──┬── ───┬─── ──┬── ───┬────
-  │      │      │      └──── transition dipole moment
-  │      │      └─────────── decay time constants   
-  │      └────────────────── transition frequency
-  └───────────────────────── spatial coordinates
+x y z alpha gamma0 M_s Mx My Mz
+──┬── ──┬── ───┬── ─┬─ ─────────── magnetization vector components
+  │     │      │    └───────────── transition dipole moment
+  │     │      └────────────────── LLG damping constant   
+  |     └───────────────────────── LLG damping constant
+  └─────────────────────────────── spatial coordinates
 ```
 
 `pulse.cfg` specifies the incident Gaussian pulse(s) with the following format:
 
 ```
-E_0 delay sigma omega_L kx ky kz px py pz
-─┬─ ──┬── ──┬── ───┬─── ───┬──── ───┬────
- │    │     │      │       │        └──── polarization vector (normalized)
- │    │     │      │       └───────────── wavevector
- │    │     │      └───────────────────── laser frequency
- │    │     └──────────────────────────── pulse width (dimensionless)
- │    └────────────────────────────────── peak shift
+H_0 fc bw dc kx ky kz px py pz
+─┬─ ┬─ ┬─ ┬─ ───┬──── ───┬────
+ │  │  │  │     │        └──── polarization vector (normalized)
+ │  │  │  │     └───────────── wavevector
+ │  │  │  └───────────────────── DC field magnitude
+ │  │  └──────────────────────────── frequency bandwidth
+ │  └────────────────────────────────── center frequency
  └─────────────────────────────────────── amplitude
 ```
 
