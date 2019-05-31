@@ -14,7 +14,7 @@
 #include "interactions/history_interaction.h"
 #include "interactions/pulse_interaction.h"
 #include "interactions/self_interaction.h"
-#include "solver/newton.h"
+#include "solver/jfnk.h"
 #include "solver/solver.h"
 
 using namespace std;
@@ -38,8 +38,8 @@ int main(int argc, char *argv[])
       (*pulses)[p].compute_parameters(config.c0);
       dc_field += (*pulses)[p].get_dc_field();
     }
+    // line below sets dt based on the incident pulse. Commented out for testing.
     // const double dt = (*pulses)[0].compute_dt();
-    //const double dt = 1e-13;
     const double dt = config.dt;
     const double num_timesteps =
         static_cast<int>(std::ceil(config.total_time / dt));
@@ -71,12 +71,11 @@ int main(int argc, char *argv[])
         make_shared<SelfInteraction>(qds, delta_history)};
 
     rhs_func_vector rhs_funcs = rhs_functions(*qds);
-    // try passing particles to solver
     jacobian_matvec_func_vector jacobian_matvec_funcs =
         make_jacobian_matvec_funcs(*qds);
 
-    int newton_iterations = 4;  // Figure out best way to set these
-    auto solver = NewtonSolver(dt, newton_iterations, history, delta_history,
+    int jfnk_iterations = 4;  // Figure out best way to set these
+    auto solver = JFNKSolver(dt, jfnk_iterations, history, delta_history,
                         std::move(interactions), std::move(delta_interactions), rhs_funcs,
                         jacobian_matvec_funcs);
 

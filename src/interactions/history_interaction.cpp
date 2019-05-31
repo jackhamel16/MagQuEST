@@ -33,6 +33,7 @@ void HistoryInteraction::build_coefficient_table()
 
     Vec3d dr(separation((*dots)[src], (*dots)[obs]));
 
+    // Calculating indexing shift due to communication delay between particles
     std::pair<int, double> delay(split_double(0.0));
 
     floor_delays[pair_idx] = delay.first;

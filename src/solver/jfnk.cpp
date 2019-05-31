@@ -1,6 +1,6 @@
-#include "newton.h"
+#include "jfnk.h"
 
-NewtonSolver::NewtonSolver(
+JFNKSolver::JFNKSolver(
     const double dt,
     int max_iter,
     const std::shared_ptr<Integrator::History<vec3d>> &history,
@@ -17,7 +17,7 @@ NewtonSolver::NewtonSolver(
 {
 }
 
-vec3d residual_rhs(vec3d mag,
+vec3d JFNKSolver::residual_rhs(vec3d mag,
                    vec3d mag_past,
                    vec3d field,
                    int sol,
@@ -27,19 +27,7 @@ vec3d residual_rhs(vec3d mag,
   return mag_past - mag + step_size * rhs_functions[sol](mag, field);
 }
 
-std::vector<vec3d> JFNK_solve(int num_solutions,
-                              const double step_size,
-                              std::vector<vec3d> jacobian_matvec_vec,
-                              std::vector<vec3d> residual_vec)
-{
-  std::vector<vec3d> delta_vecs(num_solutions);
-  for(int sol = 0; sol < num_solutions; ++sol) {
-    delta_vecs[sol] = step_size * jacobian_matvec_vec[sol] + residual_vec[sol];
-  }
-  return delta_vecs;
-}
-
-void NewtonSolver::solve_step(int step)
+void JFNKSolver::solve_step(int step)
 {
   // GMRES Parameters
   Eigen::Matrix<double, 3, 3> H;
@@ -52,7 +40,7 @@ void NewtonSolver::solve_step(int step)
   std::vector<vec3d> delta_vecs(num_solutions);
   for(int sol = 0; sol < num_solutions; ++sol) {
     history->array[sol][step][0] = history->array[sol][step - 1][0] * 0.99;
-    // Make sure setting up delta_history accounts for this
+    // Make sure setting up delta_history accounts for step-1 index
     delta_history->array[sol][step][0] =
         history->array[sol][step][0] - history->array[sol][step - 1][0];
   }
@@ -76,7 +64,7 @@ void NewtonSolver::solve_step(int step)
                          rhs_functions);
       int gmres_out = GMRES(matvec, delta_history->array[sol][step][0],
                             rhs, H, m, gmres_iters, gmres_tol);
-      if(gmres_out == 1) std::cout << "Iteration = " << iter << " GMRES COULD NOT CONVERGE\n";
+      //if(gmres_out == 1) std::cout << "Iteration = " << iter << " GMRES COULD NOT CONVERGE\n";
       history->array[sol][step][0] =
           history->array[sol][step][0] + delta_history->array[sol][step][0];
     }

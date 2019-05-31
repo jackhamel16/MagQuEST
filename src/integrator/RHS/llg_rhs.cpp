@@ -2,7 +2,6 @@
 #include <fstream>
 #include <ostream>
 #include <string>
-#include "gmres.h"
 
 Integrator::LLG_RHS::LLG_RHS(
     const double dt,

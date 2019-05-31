@@ -19,14 +19,14 @@ soltype MagneticParticle::llg_rhs(const soltype &mag,
 }
 
 soltype MagneticParticle::llg_jacobian_matvec(
-    // bind parameters and use as Ax in GMRES to sovler Ax=b
+    // bind parameters and use as Ax in GMRES to solve Ax=b
     const double dt,
     const soltype &mag,
     const soltype &delta_mag,
     const Eigen::Vector3d &hfield,
     const Eigen::Vector3d &delta_field)
 {
-  // Used in the Jacobian Free Newton Krylov solver
+  // Jacobian matvec approximation used in the Jacobian Free Newton Krylov solver
   Eigen::Vector3d precession = mag.cross(delta_field) + delta_mag.cross(hfield);
   Eigen::Vector3d damping = mag.cross(mag.cross(delta_field)) +
                             mag.cross(delta_mag.cross(hfield)) +
@@ -34,7 +34,7 @@ soltype MagneticParticle::llg_jacobian_matvec(
   const double gamma = gamma0 / (1 + std::pow(alpha, 2));
 
   Eigen::Vector3d jacobian_matvec =  -gamma * precession - gamma * alpha / sat_mag * damping;
-  return delta_mag - dt * jacobian_matvec;
+  return delta_mag - dt * jacobian_matvec; //note this is a little more than just the matvec
 }
 
 const Eigen::Vector3d separation(const MagneticParticle &mp1,
@@ -58,6 +58,7 @@ rhs_func_vector rhs_functions(const DotVector &dots)
 
 jacobian_matvec_func_vector make_jacobian_matvec_funcs(const DotVector &dots)
 {
+  // Builds data structure of matvecs for gmres for each particle
   jacobian_matvec_func_vector funcs(dots.size());
 
   using std::placeholders::_1;

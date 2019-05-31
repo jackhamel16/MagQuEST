@@ -19,6 +19,8 @@
 //  
 //*****************************************************************
 
+// THIS CANNOT BE USED IN CODE BUT IS THE CODE I CREATED MY GMRES FROM
+
 #include <math.h> 
 
 template<class Real> 
