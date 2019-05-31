@@ -16,7 +16,6 @@ soltype MagneticParticle::llg_rhs(const soltype &mag,
   const double gamma = gamma0 / (1 + std::pow(alpha, 2));
 
   return -gamma * mxh - gamma * alpha / sat_mag * mag.cross(mxh);
-  //return -gamma * mxh;
 }
 
 soltype MagneticParticle::llg_jacobian_matvec(
@@ -36,7 +35,6 @@ soltype MagneticParticle::llg_jacobian_matvec(
 
   Eigen::Vector3d jacobian_matvec =  -gamma * precession - gamma * alpha / sat_mag * damping;
   return delta_mag - dt * jacobian_matvec;
-  //return -gamma * precession;
 }
 
 const Eigen::Vector3d separation(const MagneticParticle &mp1,
