@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     }
     // line below sets dt based on the incident pulse. Commented out for testing.
     // const double dt = (*pulses)[0].compute_dt();
-    const double dt = config.dt;
+    const double dt = config.dt;  // useful for testing
     const double num_timesteps =
         static_cast<int>(std::ceil(config.total_time / dt));
     std::cout << dt << std::endl;
@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
         config.num_particles, 22, num_timesteps);
     const auto delta_history = std::make_shared<Integrator::History<soltype>>(
         config.num_particles, 0, num_timesteps);
+    // Setting M for all particles. only use this for testing.
     history->fill(soltype(1.7e6, 0, 0));
     delta_history->fill(soltype(1, 0, 0));
 
