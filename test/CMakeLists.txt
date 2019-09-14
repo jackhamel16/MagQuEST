@@ -14,7 +14,7 @@ if(${Boost_FOUND})
       #"${CMAKE_CURRENT_LIST_DIR}/pulse_interaction_test.cpp"
       #"${CMAKE_CURRENT_LIST_DIR}/llg_test.cpp"
       #"${CMAKE_CURRENT_LIST_DIR}/history_interaction_test.cpp"
-      #"${CMAKE_CURRENT_LIST_DIR}/JFNK_test.cpp"
+      "${CMAKE_CURRENT_LIST_DIR}/JFNK_test.cpp"
       #"${CMAKE_CURRENT_LIST_DIR}/GMRES_test.cpp"
       #"${CMAKE_CURRENT_LIST_DIR}/GMRES_test_tri.cpp"
       #"${CMAKE_CURRENT_LIST_DIR}/GMRES_test_simple.cpp"
