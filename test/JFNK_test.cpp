@@ -64,7 +64,7 @@ BOOST_FIXTURE_TEST_CASE(JFNK_solver, Universe)
 {
   const double tolerance = 1e-3;
 
-  const double step_size = 1e-18;
+  const double step_size = 1e-10;
   const int num_of_steps = 10;
   const int max_iter = 4;
   const auto history =
@@ -89,7 +89,7 @@ BOOST_FIXTURE_TEST_CASE(JFNK_solver, Universe)
   Pulse dc_pulse(0, 1, 1, dc_mag, vec3d(1, 0, 0), dc_orientation);
   PulseVector pulse_vec(1);
   pulse_vec[0] = dc_pulse;
-
+  
   auto dyadic =
       std::make_shared<Propagation::FixedFramePropagator>(1, 1);
   auto dyadic2 =
@@ -127,7 +127,11 @@ BOOST_FIXTURE_TEST_CASE(JFNK_solver, Universe)
 
   for(int step = 0; step < num_of_steps; ++step) {
     BOOST_CHECK_MESSAGE(
-        analytical_history[step].norm() < tolerance, "placeholder\n");
+        (analytical_history[step] - history->array[0][step][0]).norm() / 
+        analytical_history[step].norm() < tolerance, 
+        "Solution incorrect at step: " << step << "\n");
+    std::cout << analytical_history[step].transpose() << " " << 
+                 history->array[0][step][0].transpose() << "\n";
   }
 }
 BOOST_AUTO_TEST_SUITE_END()
