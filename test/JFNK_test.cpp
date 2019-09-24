@@ -74,7 +74,7 @@ BOOST_FIXTURE_TEST_CASE(JFNK_solver, Universe)
   std::vector<vec3d> analytical_history(num_of_steps);
 
   // Setup a particle
-  const double Ms = 1e6;
+  const double Ms = 1.7e6;
   const vec3d M(Ms, 0, 0);
   history->fill(M);
   delta_history->fill(vec3d(1, 0, 0));
