@@ -40,6 +40,11 @@ class MagneticParticle {
                               const soltype &,
                               const Eigen::Vector3d &,
                               const Eigen::Vector3d &);
+  soltype llg_jacobian_matvec_explicit(const double,
+                              const soltype &,
+                              const soltype &,
+                              const Eigen::Vector3d &,
+                              const Eigen::Vector3d &);
 
   const Eigen::Vector3d &position() const { return pos; }
   const soltype &magnetization() const { return mag; }

@@ -37,6 +37,33 @@ soltype MagneticParticle::llg_jacobian_matvec(
   return delta_mag - dt * jacobian_matvec; //note this is a little more than just the matvec
 }
 
+soltype MagneticParticle::llg_jacobian_matvec_explicit(
+    // bind parameters and use as Ax in GMRES to solve Ax=b using explicitly formed jacobian
+    const double dt,
+    const soltype &mag,
+    const soltype &delta_mag,
+    const Eigen::Vector3d &H,
+    const Eigen::Vector3d &delta_field)
+{
+  const double gamma = gamma0 / (1 + std::pow(alpha, 2));
+  const double gamma2 = gamma * alpha / sat_mag;
+  Eigen::Matrix3d jacobian; 
+  jacobian(0, 0) = -gamma2 * (mag[2] * H[2] + mag[1] * H[1]);
+  jacobian(0, 1) =
+      -gamma * H[2] + gamma2 * 2 * mag[1] * H[0] - gamma2 * mag[0] * H[1];
+  jacobian(0, 2) = gamma * H[1] + gamma2 * 2 * mag[2] * H[0] - gamma2 * mag[0] * H[2];
+  jacobian(1, 0) = gamma * H[2] + gamma2 * 2 * mag[0] * H[1] - gamma2 * mag[1] * H[0];
+  jacobian(1, 1) = -gamma2 * (mag[2] * H[2] + mag[0] * H[0]);
+  jacobian(1, 2) =
+      -gamma * H[0] + gamma2 * 2 * mag[2] * H[1] - gamma2 * mag[1] * H[2];
+  jacobian(2, 0) =
+      -gamma * H[1] + gamma2 * 2 * mag[0] * H[2] - gamma2 * mag[2] * H[0];
+  jacobian(2, 1) = gamma * H[0] + gamma2 * 2 * mag[1] * H[2] - gamma2 * mag[2] * H[1];
+  jacobian(2, 2) = -gamma2 * (mag[1] * H[1] + mag[0] * H[0]);
+
+  return delta_mag - dt * jacobian * delta_mag; //note this is a little more than just the matvec
+}
+
 const Eigen::Vector3d separation(const MagneticParticle &mp1,
                                  const MagneticParticle &mp2)
 {
