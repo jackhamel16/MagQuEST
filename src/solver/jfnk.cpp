@@ -65,14 +65,14 @@ void JFNKSolver::solve_step(int step)
       rhs = residual_rhs(history->array[sol][step][0],
                          history->array[sol][step - 1][0], mag_fields, sol, dt,
                          rhs_functions);
-      int gmres_out = GMRES(matvec, delta_history->array[sol][step][0],
-                            rhs, H, m, gmres_iters, gmres_tol);
-      vec3d implicit_v = delta_history->array[sol][step][0];
+      //int gmres_out = GMRES(matvec, delta_history->array[sol][step][0],
+                            //rhs, H, m, gmres_iters, gmres_tol);
+      //vec3d implicit_v = delta_history->array[sol][step][0];
       int gmres_out2 = GMRES(matvec_explicit, delta_history->array[sol][step][0],
                             rhs, H, m, gmres_iters, gmres_tol);
-      vec3d explicit_v = delta_history->array[sol][step][0];
-      double error = (implicit_v - explicit_v).norm() / implicit_v.norm();
-      if(error > 1e-5) std::cout << "Explicit and Implicit error too high. Error = "<< error <<"\n";
+      //vec3d explicit_v = delta_history->array[sol][step][0];
+      //double error = (implicit_v - explicit_v).norm() / implicit_v.norm();
+      //if(error > 1e-5) std::cout << "Explicit and Implicit error too high. Error = "<< error <<"\n";
       //std::cout << "Explicit = " << explicit_v.transpose() << "\nImplicit = " << implicit_v.transpose() << "\n";
 
       //if(gmres_out == 1) std::cout << "Iteration = " << iter << " GMRES COULD NOT CONVERGE\n";
