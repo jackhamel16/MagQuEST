@@ -9,13 +9,32 @@ MagneticParticle::MagneticParticle(const Eigen::Vector3d &pos,
 {
 }
 
+
+int factorial(int n) { return (n > 1) ? n * factorial(n - 1) : 1; }
+
+Eigen::Vector3d recursive_cross(int n, Eigen::Vector3d a, Eigen::Vector3d b)
+{
+  return (n > 0) ? a.cross(recursive_cross(n - 1, a, b)) : b;
+}
+
+soltype MagneticParticle::ode_solution(double t, soltype &M0, Eigen::Vector3d &hfield)
+{
+  const double gamma = gamma0 / (1 + std::pow(alpha, 2));
+  soltype sol = M0;
+  for(int n = 1; n < 20; ++n) {
+    sol +=
+        std::pow(t * gamma, n) / factorial(n) * recursive_cross(n, hfield, M0);
+  }
+  return sol;
+}
+
 soltype MagneticParticle::llg_rhs(const soltype &mag,
                                   const Eigen::Vector3d &hfield)
 {
   const Eigen::Vector3d mxh = mag.cross(hfield);
   const double gamma = gamma0 / (1 + std::pow(alpha, 2));
 
-  return -gamma * mxh - gamma * alpha / sat_mag * mag.cross(mxh);
+  return -gamma * mxh;// - gamma * alpha / sat_mag * mag.cross(mxh);
 }
 
 soltype MagneticParticle::llg_jacobian_matvec(
@@ -28,12 +47,12 @@ soltype MagneticParticle::llg_jacobian_matvec(
 {
   // Jacobian matvec approximation used in the Jacobian Free Newton Krylov solver
   Eigen::Vector3d precession = mag.cross(delta_field) + delta_mag.cross(hfield);
-  Eigen::Vector3d damping = mag.cross(mag.cross(delta_field)) +
-                            mag.cross(delta_mag.cross(hfield)) +
-                            delta_mag.cross(mag.cross(hfield));
+  //Eigen::Vector3d damping = mag.cross(mag.cross(delta_field)) +
+                            //mag.cross(delta_mag.cross(hfield)) +
+                            //delta_mag.cross(mag.cross(hfield));
   const double gamma = gamma0 / (1 + std::pow(alpha, 2));
 
-  Eigen::Vector3d jacobian_matvec =  -gamma * precession - gamma * alpha / sat_mag * damping;
+  Eigen::Vector3d jacobian_matvec =  -gamma * precession;// - gamma * alpha / sat_mag * damping;
   return delta_mag - dt * jacobian_matvec; //note this is a little more than just the matvec
 }
 

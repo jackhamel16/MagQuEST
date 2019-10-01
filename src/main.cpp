@@ -71,6 +71,13 @@ int main(int argc, char *argv[])
                                         config.c0),
         make_shared<SelfInteraction>(qds, delta_history)};
 
+    // Compute llg ode solutions prior to moving interactions
+    std::vector<soltype> solutions(num_timesteps);
+    for(int step=0; step<num_timesteps; ++step) {
+      Eigen::Vector3d field = dc_field*Eigen::Vector3d(0,1,0);
+      solutions[step] = (*qds)[0].ode_solution(step*dt, history->array[0][0][0], field);
+    }
+
     rhs_func_vector rhs_funcs = rhs_functions(*qds);
     jacobian_matvec_func_vector jacobian_matvec_funcs =
         make_jacobian_matvec_funcs(*qds);
@@ -84,22 +91,15 @@ int main(int argc, char *argv[])
 
     cout << "Writing output..." << endl;
     ofstream outfile("output.dat");
-    ofstream pulsefile("pulseout.dat");
+    ofstream errorfile("errorout.dat");
     outfile << scientific << setprecision(15);
-    pulsefile << scientific << setprecision(15);
+    errorfile << scientific << setprecision(15);
     for(int t = 0; t < num_timesteps; ++t) {
-    //for(int t = 0; t < num_timesteps; t=t+50) {
+    errorfile << (solutions[t] - history->array[0][t][0]).norm() / solutions[t].norm() << "\n";
       for(int n = 0; n < config.num_particles; ++n) {
-        //std::cout << history->array[n][t][0].norm() << " ";
         outfile << history->array[n][t][0].transpose() << " ";
-        pulsefile << (*pulses)[0](soltype(0, 0, 0), dt * t).transpose() << " ";
-        // pulsefile << (*pulses)[0](Eigen::Vector3d(0, 0, 0), t *
-        // dt).transpose()
-        //<< " ";
       }
-      //std::cout <<"\n";
       outfile << "\n";
-      pulsefile << "\n";
     }
   } catch(CommandLineException &e) {
     // User most likely queried for help or version info, so we can silently

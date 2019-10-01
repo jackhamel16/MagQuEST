@@ -33,7 +33,7 @@ class MagneticParticle {
                    const double,
                    const double,
                    const soltype &);
-
+  soltype ode_solution(double, soltype &, Eigen::Vector3d &);
   soltype llg_rhs(const soltype &, const Eigen::Vector3d &);
   soltype llg_jacobian_matvec(const double,
                               const soltype &,
