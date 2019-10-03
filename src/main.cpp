@@ -38,8 +38,8 @@ int main(int argc, char *argv[])
       (*pulses)[p].compute_parameters(config.c0);
       dc_field += (*pulses)[p].get_dc_field();
     }
-    // line below sets dt based on the incident pulse. Commented out for testing.
-    // const double dt = (*pulses)[0].compute_dt();
+    // line below sets dt based on the incident pulse. Commented out for
+    // testing. const double dt = (*pulses)[0].compute_dt();
     const double dt = config.dt;  // useful for testing
     const double num_timesteps =
         static_cast<int>(std::ceil(config.total_time / dt));
@@ -74,11 +74,14 @@ int main(int argc, char *argv[])
     rhs_func_vector rhs_funcs = rhs_functions(*qds);
     jacobian_matvec_func_vector jacobian_matvec_funcs =
         make_jacobian_matvec_funcs(*qds);
+    jacobian_matvec_func_vector jacobian_matvec_funcs_explicit =
+        make_explicit_jacobian_matvec_funcs(*qds);
 
     int jfnk_iterations = 4;  // Figure out best way to set these
-    auto solver = JFNKSolver(dt, jfnk_iterations, history, delta_history,
-                        std::move(interactions), std::move(delta_interactions), rhs_funcs,
-                        jacobian_matvec_funcs);
+    auto solver = JFNKSolver(
+        dt, jfnk_iterations, history, delta_history, std::move(interactions),
+        std::move(delta_interactions), rhs_funcs, jacobian_matvec_funcs,
+        jacobian_matvec_funcs_explicit);
 
     solver.solve();
 
@@ -88,16 +91,16 @@ int main(int argc, char *argv[])
     outfile << scientific << setprecision(15);
     pulsefile << scientific << setprecision(15);
     for(int t = 0; t < num_timesteps; ++t) {
-    //for(int t = 0; t < num_timesteps; t=t+50) {
+      // for(int t = 0; t < num_timesteps; t=t+50) {
       for(int n = 0; n < config.num_particles; ++n) {
-        //std::cout << history->array[n][t][0].norm() << " ";
+        // std::cout << history->array[n][t][0].norm() << " ";
         outfile << history->array[n][t][0].transpose() << " ";
         pulsefile << (*pulses)[0](soltype(0, 0, 0), dt * t).transpose() << " ";
         // pulsefile << (*pulses)[0](Eigen::Vector3d(0, 0, 0), t *
         // dt).transpose()
         //<< " ";
       }
-      //std::cout <<"\n";
+      // std::cout <<"\n";
       outfile << "\n";
       pulsefile << "\n";
     }

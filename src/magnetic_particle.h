@@ -64,6 +64,7 @@ class MagneticParticle {
 
 rhs_func_vector rhs_functions(const DotVector &);
 jacobian_matvec_func_vector make_jacobian_matvec_funcs(const DotVector &);
+jacobian_matvec_func_vector make_explicit_jacobian_matvec_funcs(const DotVector &);
 DotVector import_dots(const std::string &);
 
 #endif

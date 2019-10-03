@@ -17,6 +17,7 @@ class JFNKSolver : public Solver {
              std::vector<std::shared_ptr<Interaction>>,
              std::vector<std::shared_ptr<Interaction>>,
              rhs_func_vector &,
+             jacobian_matvec_func_vector &,
              jacobian_matvec_func_vector &);
   virtual void solve_step(int);
 
@@ -25,6 +26,7 @@ class JFNKSolver : public Solver {
   const std::shared_ptr<Integrator::History<vec3d>> delta_history;
   const std::vector<std::shared_ptr<Interaction>> delta_interactions;
   jacobian_matvec_func_vector matvec_funcs;
+  jacobian_matvec_func_vector matvec_funcs_explicit;
   vec3d residual_rhs(vec3d, vec3d, vec3d, int, double, rhs_func_vector &);
 };
 

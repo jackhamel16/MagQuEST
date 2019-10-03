@@ -8,12 +8,14 @@ JFNKSolver::JFNKSolver(
     std::vector<std::shared_ptr<Interaction>> interactions,
     std::vector<std::shared_ptr<Interaction>> delta_interactions,
     rhs_func_vector &rhs_functions,
-    jacobian_matvec_func_vector &matvec_funcs)
+    jacobian_matvec_func_vector &matvec_funcs,
+    jacobian_matvec_func_vector &matvec_funcs_explicit)
     : Solver(dt, history, interactions, rhs_functions),
       max_iter(max_iter),
       delta_history(delta_history),
       delta_interactions(delta_interactions),
-      matvec_funcs(matvec_funcs)
+      matvec_funcs(matvec_funcs),
+      matvec_funcs_explicit(matvec_funcs_explicit)
 {
 }
 
@@ -60,16 +62,16 @@ void JFNKSolver::solve_step(int step)
           delta_history_interactions[sol] + delta_self_interactions[sol];
       matvec = std::bind(matvec_funcs[sol], dt, history->array[sol][step][0],
                          std::placeholders::_1, mag_fields, delta_fields);
-      matvec_explicit = std::bind(matvec_funcs[sol], dt, history->array[sol][step][0],
+      matvec_explicit = std::bind(matvec_funcs_explicit[sol], dt, history->array[sol][step][0],
                          std::placeholders::_1, mag_fields, delta_fields);
       rhs = residual_rhs(history->array[sol][step][0],
                          history->array[sol][step - 1][0], mag_fields, sol, dt,
                          rhs_functions);
-      //int gmres_out = GMRES(matvec, delta_history->array[sol][step][0],
-                            //rhs, H, m, gmres_iters, gmres_tol);
-      //vec3d implicit_v = delta_history->array[sol][step][0];
-      int gmres_out2 = GMRES(matvec_explicit, delta_history->array[sol][step][0],
+      int gmres_out = GMRES(matvec, delta_history->array[sol][step][0],
                             rhs, H, m, gmres_iters, gmres_tol);
+      //vec3d implicit_v = delta_history->array[sol][step][0];
+      //int gmres_out2 = GMRES(matvec_explicit, delta_history->array[sol][step][0],
+                            //rhs, H, m, gmres_iters, gmres_tol);
       //vec3d explicit_v = delta_history->array[sol][step][0];
       //double error = (implicit_v - explicit_v).norm() / implicit_v.norm();
       //if(error > 1e-5) std::cout << "Explicit and Implicit error too high. Error = "<< error <<"\n";
