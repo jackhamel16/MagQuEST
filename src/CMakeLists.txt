@@ -15,6 +15,7 @@ target_sources(quest
     "${CMAKE_CURRENT_LIST_DIR}/pulse.h"
     "${CMAKE_CURRENT_LIST_DIR}/magnetic_particle.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/magnetic_particle.h"
+    "${CMAKE_CURRENT_LIST_DIR}/global_vars.h"
 )
 
 add_executable(quest-bin "")

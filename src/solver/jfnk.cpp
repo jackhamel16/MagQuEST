@@ -1,5 +1,9 @@
 #include "jfnk.h"
 
+extern double gmres_time;
+extern double interaction_time;
+extern double gmres_setup_time;
+
 JFNKSolver::JFNKSolver(
     const double dt,
     int max_iter,
@@ -44,15 +48,18 @@ void JFNKSolver::solve_step(int step)
     delta_history->array[sol][step][0] =
         history->array[sol][step][0] - history->array[sol][step - 1][0];
   }
-
   for(int iter = 0; iter < max_iter; ++iter) {
+    auto start = std::chrono::high_resolution_clock::now();
     auto pulse_interactions = interactions[0]->evaluate(step);
     auto history_interactions = interactions[1]->evaluate(step);
     auto self_interactions = interactions[2]->evaluate(step);
     auto delta_history_interactions = delta_interactions[0]->evaluate(step);
     auto delta_self_interactions = delta_interactions[1]->evaluate(step);
-
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_time = finish - start;
+    interaction_time += elapsed_time.count();
     for(int sol = 0; sol < num_solutions; ++sol) {
+      start = std::chrono::high_resolution_clock::now();
       vec3d mag_fields = pulse_interactions[sol] + history_interactions[sol] +
                          self_interactions[sol];
       vec3d delta_fields =
@@ -62,8 +69,17 @@ void JFNKSolver::solve_step(int step)
       rhs = residual_rhs(history->array[sol][step][0],
                          history->array[sol][step - 1][0], mag_fields, sol, dt,
                          rhs_functions);
+      finish = std::chrono::high_resolution_clock::now();
+      elapsed_time = finish - start;
+      gmres_setup_time += elapsed_time.count();
+
+      start = std::chrono::high_resolution_clock::now();
       int gmres_out = GMRES(matvec, delta_history->array[sol][step][0],
                             rhs, H, m, gmres_iters, gmres_tol);
+      finish = std::chrono::high_resolution_clock::now();
+      elapsed_time = finish - start;
+      gmres_time += elapsed_time.count();
+
       //if(gmres_out == 1) std::cout << "Iteration = " << iter << " GMRES COULD NOT CONVERGE\n";
       history->array[sol][step][0] =
           history->array[sol][step][0] + delta_history->array[sol][step][0];

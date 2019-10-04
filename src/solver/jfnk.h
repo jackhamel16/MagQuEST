@@ -1,6 +1,8 @@
 #ifndef JFNK_SOLVER
 #define JFNK_SOLVER
 
+#include <chrono>
+
 #include "gmres.h"
 #include "solver.h"
 

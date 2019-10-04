@@ -5,6 +5,7 @@
 #include <iterator>
 #include <vector>
 
+#include "global_vars.h"
 #include "configuration.h"
 #include "integrator/RHS/llg_rhs.h"
 #include "integrator/euler.h"
@@ -18,6 +19,10 @@
 #include "solver/solver.h"
 
 using namespace std;
+
+extern double gmres_time;
+extern double interaction_time;
+extern double gmres_setup_time;
 
 int main(int argc, char *argv[])
 {
@@ -79,8 +84,15 @@ int main(int argc, char *argv[])
     auto solver = JFNKSolver(dt, jfnk_iterations, history, delta_history,
                         std::move(interactions), std::move(delta_interactions), rhs_funcs,
                         jacobian_matvec_funcs);
-
+    std::cout << "at solver\n";    
+    auto start = std::chrono::high_resolution_clock::now();
     solver.solve();
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_time = finish - start;
+    std::cout << "Time in solver: " << elapsed_time.count() << " seconds\n";
+    std::cout << "Time on fields: " << interaction_time << " seconds\n";
+    std::cout << "Time on GMRES setup: " << gmres_setup_time << " seconds\n";
+    std::cout << "Time in GMRES: " << gmres_time << " seconds\n";
 
     cout << "Writing output..." << endl;
     ofstream outfile("output.dat");
