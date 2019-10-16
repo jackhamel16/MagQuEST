@@ -37,7 +37,7 @@ soltype MagneticParticle::llg_jacobian_matvec(
   return delta_mag - dt * jacobian_matvec; //note this is a little more than just the matvec
 }
 
-soltype MagneticParticle::llg_jacobian_matvec_explicit(
+Eigen::Matrix3d MagneticParticle::llg_jacobian(
     // bind parameters and use as Ax in GMRES to solve Ax=b using explicitly formed jacobian
     const double dt,
     const soltype &mag,
@@ -61,10 +61,7 @@ soltype MagneticParticle::llg_jacobian_matvec_explicit(
   jacobian(2, 1) = gamma * H[0] + gamma2 * 2 * mag[1] * H[2] - gamma2 * mag[2] * H[1];
   jacobian(2, 2) = -gamma2 * (mag[1] * H[1] + mag[0] * H[0]);
 
-  //Eigen::Matrix3d identity = Eigen::MatrixXd::Identity(3,3);
-  //std::cout << "Jacobian:\n" <<  identity - dt*jacobian << std::endl;
-
-  return delta_mag - dt * jacobian * delta_mag; //note this is a little more than just the matvec
+  return jacobian;
 }
 
 const Eigen::Vector3d separation(const MagneticParticle &mp1,
@@ -103,10 +100,10 @@ jacobian_matvec_func_vector make_jacobian_matvec_funcs(const DotVector &dots)
   return funcs;
 }
 
-jacobian_matvec_func_vector make_explicit_jacobian_matvec_funcs(const DotVector &dots)
+jacobian_func_vector make_jacobian_vector(const DotVector &dots)
 {
   // Builds data structure of matvecs for gmres for each particle
-  jacobian_matvec_func_vector funcs(dots.size());
+  jacobian_func_vector funcs(dots.size());
 
   using std::placeholders::_1;
   using std::placeholders::_2;
@@ -115,7 +112,7 @@ jacobian_matvec_func_vector make_explicit_jacobian_matvec_funcs(const DotVector 
   using std::placeholders::_5;
   std::transform(dots.begin(), dots.end(), funcs.begin(),
                  [](const MagneticParticle &mp) {
-                   return std::bind(&MagneticParticle::llg_jacobian_matvec_explicit, mp, _1, _2, _3, _4, _5);
+                   return std::bind(&MagneticParticle::llg_jacobian, mp, _1, _2, _3, _4, _5);
                  });
   return funcs;
 }

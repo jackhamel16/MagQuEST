@@ -74,14 +74,13 @@ int main(int argc, char *argv[])
     rhs_func_vector rhs_funcs = rhs_functions(*qds);
     jacobian_matvec_func_vector jacobian_matvec_funcs =
         make_jacobian_matvec_funcs(*qds);
-    jacobian_matvec_func_vector jacobian_matvec_funcs_explicit =
-        make_explicit_jacobian_matvec_funcs(*qds);
+    jacobian_func_vector jacobian_funcs_vector =
+        make_jacobian_vector(*qds);
 
     int jfnk_iterations = 4;  // Figure out best way to set these
     auto solver = JFNKSolver(
         dt, jfnk_iterations, history, delta_history, std::move(interactions),
-        std::move(delta_interactions), rhs_funcs, jacobian_matvec_funcs,
-        jacobian_matvec_funcs_explicit);
+        std::move(delta_interactions), rhs_funcs, jacobian_funcs_vector);
 
     solver.solve();
 

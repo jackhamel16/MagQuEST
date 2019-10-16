@@ -24,6 +24,11 @@ typedef std::vector<std::function<soltype(const double,
                                           const Eigen::Vector3d &,
                                           const Eigen::Vector3d)>>
     jacobian_matvec_func_vector;
+typedef std::vector<std::function<Eigen::Matrix3d(const double,
+    const soltype &,
+    const soltype &,
+    const Eigen::Vector3d &,
+    const Eigen::Vector3d)>> jacobian_func_vector;
 
 class MagneticParticle {
  public:
@@ -40,7 +45,7 @@ class MagneticParticle {
                               const soltype &,
                               const Eigen::Vector3d &,
                               const Eigen::Vector3d &);
-  soltype llg_jacobian_matvec_explicit(const double,
+  Eigen::Matrix3d llg_jacobian(const double,
                               const soltype &,
                               const soltype &,
                               const Eigen::Vector3d &,
@@ -64,7 +69,7 @@ class MagneticParticle {
 
 rhs_func_vector rhs_functions(const DotVector &);
 jacobian_matvec_func_vector make_jacobian_matvec_funcs(const DotVector &);
-jacobian_matvec_func_vector make_explicit_jacobian_matvec_funcs(const DotVector &);
+jacobian_func_vector make_jacobian_vector(const DotVector &);
 DotVector import_dots(const std::string &);
 
 #endif
